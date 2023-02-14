@@ -1,6 +1,6 @@
 import { State } from "@/frontend/store/type";
 import { ToolbarButtonTagType } from "@/type/preload";
-import path from "path";
+import { basename as pathBasename } from "path-browserify";
 import { Platform } from "quasar";
 
 export function sanitizeFileName(fileName: string): string {
@@ -171,7 +171,7 @@ export const convertLongVowel = (text: string): string => {
 
 // based on https://github.com/BBWeb/path-browserify/blob/win-version/index.js
 export const getBaseName = (filePath: string) => {
-  if (!Platform.is.win) return path.basename(filePath);
+  if (!Platform.is.win) return pathBasename(filePath);
 
   const splitDeviceRegex =
     /^([a-zA-Z]:|[\\/]{2}[^\\/]+[\\/]+[^\\/]+)?([\\/])?([\s\S]*?)$/;

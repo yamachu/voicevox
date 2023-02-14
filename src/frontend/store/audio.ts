@@ -1,5 +1,5 @@
 import { AudioQuery, AccentPhrase, Speaker, SpeakerInfo } from "@/openapi";
-import path from "path";
+import { join as pathJoin } from "path-browserify";
 import { v4 as uuidv4 } from "uuid";
 import {
   AudioItem,
@@ -1213,7 +1213,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
         }
       ): Promise<SaveResultObject> => {
         if (state.savingSetting.fixedExportEnabled) {
-          filePath = path.join(
+          filePath = pathJoin(
             state.savingSetting.fixedExportDir,
             buildFileName(state, audioKey)
           );
@@ -1365,7 +1365,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
             const name = buildFileName(state, audioKey);
             return dispatch("GENERATE_AND_SAVE_AUDIO", {
               audioKey,
-              filePath: path.join(_dirPath, name),
+              filePath: pathJoin(_dirPath, name),
               encoding,
             }).then((value) => {
               callback?.(++finishedCount, totalCount);
@@ -1395,7 +1395,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
         const defaultFileName = buildProjectFileName(state, "wav");
 
         if (state.savingSetting.fixedExportEnabled) {
-          filePath = path.join(
+          filePath = pathJoin(
             state.savingSetting.fixedExportDir,
             defaultFileName
           );
@@ -1567,7 +1567,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
       ): Promise<SaveResultObject> => {
         const defaultFileName = buildProjectFileName(state, "txt");
         if (state.savingSetting.fixedExportEnabled) {
-          filePath = path.join(
+          filePath = pathJoin(
             state.savingSetting.fixedExportDir,
             defaultFileName
           );

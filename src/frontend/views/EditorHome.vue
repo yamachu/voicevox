@@ -194,7 +194,7 @@ import EngineManageDialog from "@/frontend/components/EngineManageDialog.vue";
 import ProgressDialog from "@/frontend/components/ProgressDialog.vue";
 import { AudioItem, EngineState } from "@/frontend/store/type";
 import { QResizeObserver, useQuasar } from "quasar";
-import path from "path";
+import { extname as pathExtname } from "path-browserify";
 import {
   EngineId,
   HotkeyAction,
@@ -734,7 +734,7 @@ export default defineComponent({
     const loadDraggedFile = (event?: { dataTransfer: DataTransfer }) => {
       if (!event || event.dataTransfer.files.length === 0) return;
       const file = event.dataTransfer.files[0];
-      switch (path.extname(file.name)) {
+      switch (pathExtname(file.name)) {
         case ".txt":
           store.dispatch("COMMAND_IMPORT_FROM_FILE", { filePath: file.path });
           break;
@@ -805,8 +805,8 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables' as vars;
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/variables' as vars;
+@use '@/frontend/styles/colors' as colors;
 
 .q-header {
   height: vars.$header-height;
