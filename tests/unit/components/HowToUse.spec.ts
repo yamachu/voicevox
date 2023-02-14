@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import HowToUse from "@/components/HowToUse.vue";
+import HowToUse from "@/frontend/components/HowToUse.vue";
 import { markdownItPlugin } from "@/frontend/plugins/markdownItPlugin";
 import { createStore } from "vuex";
 import { storeKey } from "@/frontend/store";

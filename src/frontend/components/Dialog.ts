@@ -4,7 +4,7 @@ import {
   SaveResultObject,
   ErrorTypeForSaveAllResultDialog,
 } from "@/frontend/store/type";
-import SaveAllResultDialog from "@/components/SaveAllResultDialog.vue";
+import SaveAllResultDialog from "@/frontend/components/SaveAllResultDialog.vue";
 import { QVueGlobals } from "quasar";
 import { Dispatch } from "@/frontend/store/vuex";
 import { withProgress } from "@/frontend/store/ui";

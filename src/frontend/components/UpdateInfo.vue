@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { UpdateInfo } from "../type/preload";
+import { UpdateInfo } from "@/type/preload";
 
 const props =
   defineProps<{

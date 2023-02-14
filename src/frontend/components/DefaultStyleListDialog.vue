@@ -98,9 +98,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { CharacterInfo, StyleInfo } from "@/type/preload";
-import DefaultStyleSelectDialog from "@/components/DefaultStyleSelectDialog.vue";
+import DefaultStyleSelectDialog from "@/frontend/components/DefaultStyleSelectDialog.vue";
 
 const props =
   defineProps<{

@@ -335,9 +335,9 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { useQuasar } from "quasar";
-import { base64ImageToUri } from "@/helpers/imageHelper";
+import { base64ImageToUri } from "@/frontend/helpers/imageHelper";
 import { EngineDirValidationResult, EngineId } from "@/type/preload";
 import type { SupportedFeatures } from "@/openapi/models/SupportedFeatures";
 

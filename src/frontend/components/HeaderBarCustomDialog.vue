@@ -111,10 +111,10 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, watch, Ref } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { ToolbarButtonTagType, ToolbarSetting } from "@/type/preload";
 import { useQuasar } from "quasar";
-import { getToolbarButtonName } from "@/store/utility";
+import { getToolbarButtonName } from "@/frontend/store/utility";
 import draggable from "vuedraggable";
 
 export default defineComponent({

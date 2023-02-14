@@ -73,9 +73,9 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { computed, ref } from "vue";
-import { useMarkdownIt } from "@/plugins/markdownItPlugin";
+import { useMarkdownIt } from "@/frontend/plugins/markdownItPlugin";
 import { EngineId } from "@/type/preload";
 
 type DetailKey = { engine: EngineId; character: string };

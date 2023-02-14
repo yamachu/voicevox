@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent, computed } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 
 export default defineComponent({
   name: "CharacterPortrait",

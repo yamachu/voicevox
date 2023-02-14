@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { useMarkdownIt } from "@/plugins/markdownItPlugin";
+import { useMarkdownIt } from "@/frontend/plugins/markdownItPlugin";
 
 const props =
   defineProps<{

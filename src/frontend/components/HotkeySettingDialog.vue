@@ -199,8 +199,8 @@
 
 <script lang="ts">
 import { defineComponent, computed, ref } from "vue";
-import { useStore } from "@/store";
-import { parseCombo } from "@/store/setting";
+import { useStore } from "@/frontend/store";
+import { parseCombo } from "@/frontend/store/setting";
 import { HotkeyAction, HotkeySetting } from "@/type/preload";
 import { useQuasar } from "quasar";
 

@@ -122,7 +122,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { CharacterInfo, DefaultStyleId, StyleInfo } from "@/type/preload";
 
 const props =

@@ -182,8 +182,8 @@
 </template>
 
 <script lang="ts">
-import { base64ImageToUri } from "@/helpers/imageHelper";
-import { useStore } from "@/store";
+import { base64ImageToUri } from "@/frontend/helpers/imageHelper";
+import { useStore } from "@/frontend/store";
 import { CharacterInfo, Voice } from "@/type/preload";
 import { debounce } from "quasar";
 import { computed, defineComponent, PropType, ref } from "vue";

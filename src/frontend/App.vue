@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts">
-import { useStore } from "@/store";
-import ErrorBoundary from "@/components/ErrorBoundary.vue";
+import { useStore } from "@/frontend/store";
+import ErrorBoundary from "@/frontend/components/ErrorBoundary.vue";
 import { defineComponent, watch, computed } from "vue";
 import { useGtm } from "@gtm-support/vue-gtm";
 import { useRoute } from "vue-router";

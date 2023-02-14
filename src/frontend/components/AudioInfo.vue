@@ -484,10 +484,10 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
 import { QSelectProps } from "quasar";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 
 import { CharacterInfo, MorphingInfo, Preset, Voice } from "@/type/preload";
-import { previewSliderHelper } from "@/helpers/previewSliderHelper";
+import { previewSliderHelper } from "@/frontend/helpers/previewSliderHelper";
 import CharacterButton from "./CharacterButton.vue";
 import PresetManageDialog from "./PresetManageDialog.vue";
 import { EngineManifest } from "@/openapi";

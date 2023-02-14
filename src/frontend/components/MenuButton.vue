@@ -42,9 +42,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { debounce } from "quasar";
-import MenuItem from "@/components/MenuItem.vue";
-import { MenuItemData } from "@/components/MenuBar.vue";
-import { useStore } from "@/store";
+import MenuItem from "@/frontend/components/MenuItem.vue";
+import { MenuItemData } from "@/frontend/components/MenuBar.vue";
+import { useStore } from "@/frontend/store";
 
 const props = withDefaults(
   defineProps<{

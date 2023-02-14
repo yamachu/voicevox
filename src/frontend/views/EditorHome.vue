@@ -173,26 +173,26 @@ import {
   ref,
   watch,
 } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import draggable from "vuedraggable";
-import HeaderBar from "@/components/HeaderBar.vue";
-import AudioCell from "@/components/AudioCell.vue";
-import AudioDetail from "@/components/AudioDetail.vue";
-import AudioInfo from "@/components/AudioInfo.vue";
-import MenuBar from "@/components/MenuBar.vue";
-import HelpDialog from "@/components/HelpDialog.vue";
-import SettingDialog from "@/components/SettingDialog.vue";
-import HotkeySettingDialog from "@/components/HotkeySettingDialog.vue";
-import HeaderBarCustomDialog from "@/components/HeaderBarCustomDialog.vue";
-import CharacterPortrait from "@/components/CharacterPortrait.vue";
-import DefaultStyleListDialog from "@/components/DefaultStyleListDialog.vue";
-import CharacterOrderDialog from "@/components/CharacterOrderDialog.vue";
-import AcceptRetrieveTelemetryDialog from "@/components/AcceptRetrieveTelemetryDialog.vue";
-import AcceptTermsDialog from "@/components/AcceptTermsDialog.vue";
-import DictionaryManageDialog from "@/components/DictionaryManageDialog.vue";
-import EngineManageDialog from "@/components/EngineManageDialog.vue";
-import ProgressDialog from "@/components/ProgressDialog.vue";
-import { AudioItem, EngineState } from "@/store/type";
+import HeaderBar from "@/frontend/components/HeaderBar.vue";
+import AudioCell from "@/frontend/components/AudioCell.vue";
+import AudioDetail from "@/frontend/components/AudioDetail.vue";
+import AudioInfo from "@/frontend/components/AudioInfo.vue";
+import MenuBar from "@/frontend/components/MenuBar.vue";
+import HelpDialog from "@/frontend/components/HelpDialog.vue";
+import SettingDialog from "@/frontend/components/SettingDialog.vue";
+import HotkeySettingDialog from "@/frontend/components/HotkeySettingDialog.vue";
+import HeaderBarCustomDialog from "@/frontend/components/HeaderBarCustomDialog.vue";
+import CharacterPortrait from "@/frontend/components/CharacterPortrait.vue";
+import DefaultStyleListDialog from "@/frontend/components/DefaultStyleListDialog.vue";
+import CharacterOrderDialog from "@/frontend/components/CharacterOrderDialog.vue";
+import AcceptRetrieveTelemetryDialog from "@/frontend/components/AcceptRetrieveTelemetryDialog.vue";
+import AcceptTermsDialog from "@/frontend/components/AcceptTermsDialog.vue";
+import DictionaryManageDialog from "@/frontend/components/DictionaryManageDialog.vue";
+import EngineManageDialog from "@/frontend/components/EngineManageDialog.vue";
+import ProgressDialog from "@/frontend/components/ProgressDialog.vue";
+import { AudioItem, EngineState } from "@/frontend/store/type";
 import { QResizeObserver, useQuasar } from "quasar";
 import path from "path";
 import {
@@ -202,7 +202,7 @@ import {
   SplitterPosition,
   Voice,
 } from "@/type/preload";
-import { parseCombo, setHotkeyFunctions } from "@/store/setting";
+import { parseCombo, setHotkeyFunctions } from "@/frontend/store/setting";
 import cloneDeep from "clone-deep";
 
 export default defineComponent({

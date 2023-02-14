@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { previewSliderHelper } from "@/helpers/previewSliderHelper";
+import { previewSliderHelper } from "@/frontend/helpers/previewSliderHelper";
 import { MoraDataType } from "@/type/preload";
 import { computed, reactive } from "vue";
 

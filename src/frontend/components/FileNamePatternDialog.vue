@@ -78,13 +78,13 @@
 <script lang="ts">
 import { defineComponent, computed, ref, nextTick } from "vue";
 import { QInput } from "quasar";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import {
   buildFileNameFromRawData,
   DEFAULT_FILE_NAME_TEMPLATE,
   replaceTagIdToTagString,
   sanitizeFileName,
-} from "@/store/utility";
+} from "@/frontend/store/utility";
 
 export default defineComponent({
   name: "FileNamePatternDialog",

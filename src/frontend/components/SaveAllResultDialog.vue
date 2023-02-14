@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { ErrorTypeForSaveAllResultDialog } from "@/store/type";
+import { ErrorTypeForSaveAllResultDialog } from "@/frontend/store/type";
 import { useDialogPluginComponent } from "quasar";
 import { defineComponent, PropType } from "vue";
 

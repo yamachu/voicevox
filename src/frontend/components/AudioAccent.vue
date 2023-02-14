@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { previewSliderHelper } from "@/helpers/previewSliderHelper";
+import { previewSliderHelper } from "@/frontend/helpers/previewSliderHelper";
 import { AccentPhrase } from "@/openapi";
 import { computed } from "vue";
 

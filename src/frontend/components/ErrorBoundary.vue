@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { defineComponent, onErrorCaptured, onMounted } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 
 export default defineComponent({
   name: "ErrorBoundary",

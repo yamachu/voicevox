@@ -84,8 +84,8 @@
 
 <script lang="ts">
 import { defineComponent, computed } from "vue";
-import { useStore } from "@/store";
-import MinMaxCloseButtons from "@/components/MinMaxCloseButtons.vue";
+import { useStore } from "@/frontend/store";
+import MinMaxCloseButtons from "@/frontend/components/MinMaxCloseButtons.vue";
 
 export default defineComponent({
   name: "TitleBarButtons",

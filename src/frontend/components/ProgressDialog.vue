@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
 
 export default defineComponent({

@@ -6,8 +6,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { useStore } from "@/store";
-import { useMarkdownIt } from "@/plugins/markdownItPlugin";
+import { useStore } from "@/frontend/store";
+import { useMarkdownIt } from "@/frontend/plugins/markdownItPlugin";
 
 const store = useStore();
 const qAndA = ref("");

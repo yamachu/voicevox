@@ -27,19 +27,19 @@
 
 <script setup lang="ts">
 import { ref, computed, ComputedRef, watch } from "vue";
-import { useStore } from "@/store";
-import MenuButton from "@/components/MenuButton.vue";
-import TitleBarButtons from "@/components/TitleBarButtons.vue";
+import { useStore } from "@/frontend/store";
+import MenuButton from "@/frontend/components/MenuButton.vue";
+import TitleBarButtons from "@/frontend/components/TitleBarButtons.vue";
 import { useQuasar } from "quasar";
 import { HotkeyAction, HotkeyReturnType } from "@/type/preload";
-import { setHotkeyFunctions } from "@/store/setting";
+import { setHotkeyFunctions } from "@/frontend/store/setting";
 import {
   generateAndConnectAndSaveAudioWithDialog,
   generateAndSaveAllAudioWithDialog,
   generateAndSaveOneAudioWithDialog,
   connectAndExportTextWithDialog,
-} from "@/components/Dialog";
-import { base64ImageToUri } from "@/helpers/imageHelper";
+} from "@/frontend/components/Dialog";
+import { base64ImageToUri } from "@/frontend/helpers/imageHelper";
 
 export type MenuItemBase<T extends string> = {
   type: T;

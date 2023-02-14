@@ -87,7 +87,7 @@
 
 <script lang="ts">
 import { defineComponent, computed } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { mdiWindowRestore } from "@quasar/extras/mdi-v5";
 
 export default defineComponent({

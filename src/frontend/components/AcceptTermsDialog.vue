@@ -62,8 +62,8 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
-import { useStore } from "@/store";
-import { useMarkdownIt } from "@/plugins/markdownItPlugin";
+import { useStore } from "@/frontend/store";
+import { useMarkdownIt } from "@/frontend/plugins/markdownItPlugin";
 
 const props =
   defineProps<{

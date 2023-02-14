@@ -62,8 +62,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import type { MenuItemData } from "@/components/MenuBar.vue";
-import { useStore } from "@/store";
+import type { MenuItemData } from "@/frontend/components/MenuBar.vue";
+import { useStore } from "@/frontend/store";
 import { HotkeyAction } from "@/type/preload";
 const props = withDefaults(
   defineProps<{

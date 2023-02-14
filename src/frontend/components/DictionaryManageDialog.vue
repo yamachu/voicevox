@@ -250,14 +250,14 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { AccentPhrase, UserDictWord } from "@/openapi";
 import {
   convertHiraToKana,
   convertLongVowel,
   createKanaRegex,
-} from "@/store/utility";
-import AudioAccent from "@/components/AudioAccent.vue";
+} from "@/frontend/store/utility";
+import AudioAccent from "@/frontend/components/AudioAccent.vue";
 import { QInput, useQuasar } from "quasar";
 
 const defaultDictPriority = 5;

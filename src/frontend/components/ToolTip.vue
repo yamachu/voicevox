@@ -20,7 +20,7 @@
 <script lang="ts">
 import { PropType, defineComponent, computed } from "vue";
 import { ConfirmedTips } from "@/type/preload";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 
 export default defineComponent({
   name: "ToolTip",

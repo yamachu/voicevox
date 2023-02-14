@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { computed, watch, ref } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { Voice } from "@/type/preload";
 import { QInput } from "quasar";
 import CharacterButton from "./CharacterButton.vue";

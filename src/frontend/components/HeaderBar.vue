@@ -20,9 +20,9 @@
 
 <script lang="ts">
 import { defineComponent, computed, ComputedRef } from "vue";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { useQuasar } from "quasar";
-import { setHotkeyFunctions } from "@/store/setting";
+import { setHotkeyFunctions } from "@/frontend/store/setting";
 import {
   HotkeyAction,
   HotkeyReturnType,
@@ -32,8 +32,8 @@ import {
   generateAndConnectAndSaveAudioWithDialog,
   generateAndSaveAllAudioWithDialog,
   generateAndSaveOneAudioWithDialog,
-} from "@/components/Dialog";
-import { getToolbarButtonName } from "@/store/utility";
+} from "@/frontend/components/Dialog";
+import { getToolbarButtonName } from "@/frontend/store/utility";
 
 type ButtonContent = {
   text: string;

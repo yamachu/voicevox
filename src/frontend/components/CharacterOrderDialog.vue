@@ -196,7 +196,7 @@
 <script lang="ts">
 import { defineComponent, computed, ref, PropType, watch } from "vue";
 import draggable from "vuedraggable";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { CharacterInfo, StyleInfo } from "@/type/preload";
 
 export default defineComponent({
