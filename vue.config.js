@@ -24,9 +24,15 @@ module.exports = {
   configureWebpack: {
     devtool: "source-map",
   },
+  pages: {
+    index: {
+      entry: "src/frontend/main.ts",
+    },
+  },
   pluginOptions: {
     electronBuilder: {
-      preload: "src/electron/preload.ts",
+      mainProcessFile: "src/backend/background.ts",
+      preload: "src/backend/electron/preload.ts",
       builderOptions: {
         fileAssociations: [
           {
