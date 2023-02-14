@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { IpcSOData } from "./ipc";
 
+// FIXME: Electron経由でしかprocess.platformにアクセスできないため、process.env.platformのような形式にして
+// 埋め込むような形にしたい
 export const isMac = process.platform === "darwin";
 
 export const engineIdSchema = z.string().uuid().brand<"EngineId">();

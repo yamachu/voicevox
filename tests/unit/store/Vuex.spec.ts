@@ -18,6 +18,7 @@ import { proxyStore } from "@/frontend/store/proxy";
 import { dictionaryStore } from "@/frontend/store/dictionary";
 import { engineStore } from "@/frontend/store/engine";
 import { EngineId } from "@/type/preload";
+// FIXME: Build toolsなどを変更した場合はDefinePluginなどで渡すこと
 const isDevelopment = process.env.NODE_ENV == "development";
 // TODO: Swap external files to Mock
 
@@ -181,6 +182,7 @@ describe("store/vuex.js test", () => {
         ...dictionaryStore.actions,
       },
       plugins: isDevelopment ? [createLogger()] : undefined,
+      // FIXME: Build toolsなどを変更した場合はDefinePluginなどで渡すこと
       strict: process.env.NODE_ENV !== "production",
     });
     assert.exists(store);

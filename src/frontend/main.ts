@@ -23,6 +23,8 @@ createApp(App)
   .use(router)
   .use(
     createGtm({
+      // NOTE: Vue CLIから VUE_APP_ prefix で .env の値が渡されている
+      // FIXME: Build toolsなどを変更した場合はDefinePluginなどで渡すこと
       id: process.env.VUE_APP_GTM_CONTAINER_ID ?? "GTM-DUMMY",
       vueRouter: router,
       // NOTE: 最初はgtm.jsを読まず、プライバシーポリシーに同意後に読み込む

@@ -15,6 +15,8 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
+  // NOTE: Vue CLI Plugin Electron Builderから暗黙的に渡されている
+  // FIXME: Build toolsなどを変更した場合はDefinePluginなどで渡すこと
   history: process.env.IS_ELECTRON
     ? createWebHashHistory(process.env.BASE_URL)
     : createWebHistory(process.env.BASE_URL),

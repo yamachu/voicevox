@@ -378,6 +378,7 @@ export const store = createStore<State, AllGetters, AllActions, AllMutations>({
     ...indexStore.actions,
     ...proxyStore.actions,
   },
+  // FIXME: Build toolsなどを変更した場合はDefinePluginなどで渡すこと
   strict: process.env.NODE_ENV !== "production",
 });
 

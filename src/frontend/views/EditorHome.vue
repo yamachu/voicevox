@@ -578,6 +578,7 @@ export default defineComponent({
         store.state.acceptRetrieveTelemetry === "Unconfirmed";
 
       isAcceptTermsDialogOpenComputed.value =
+        // FIXME: Build toolsなどを変更した場合はDefinePluginなどで渡すこと
         process.env.NODE_ENV == "production" &&
         store.state.acceptTerms !== "Accepted";
 
