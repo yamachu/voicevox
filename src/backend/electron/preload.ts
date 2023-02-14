@@ -1,9 +1,4 @@
-import {
-  contextBridge,
-  ipcRenderer,
-  IpcRenderer,
-  IpcRendererEvent,
-} from "electron";
+import { contextBridge, ipcRenderer } from "electron";
 
 import { Sandbox, ElectronStoreType, EngineId } from "@/type/preload";
 import { IpcIHData, IpcSOData } from "@/type/ipc";
@@ -18,11 +13,11 @@ function ipcRendererInvoke(channel: string, ...args: unknown[]): unknown {
 
 function ipcRendererOn<T extends keyof IpcSOData>(
   channel: T,
-  listener: (event: IpcRendererEvent, ...args: IpcSOData[T]["args"]) => void
-): IpcRenderer;
+  listener: (event: unknown, ...args: IpcSOData[T]["args"]) => void
+): void;
 function ipcRendererOn(
   channel: string,
-  listener: (event: IpcRendererEvent, ...args: unknown[]) => void
+  listener: (event: unknown, ...args: unknown[]) => void
 ) {
   return ipcRenderer.on(channel, listener);
 }
@@ -158,7 +153,7 @@ const api: Sandbox = {
   },
 
   onReceivedIPCMsg: (channel, callback) => {
-    return ipcRendererOn(channel, callback);
+    return ipcRendererOn(channel, (_, ...args) => callback(...args));
   },
 
   closeWindow: () => {
