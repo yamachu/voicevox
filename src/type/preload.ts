@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { IpcSOData } from "./ipc";
 
-// FIXME: Electron経由でしかprocess.platformにアクセスできないため、process.env.platformのような形式にして
-// 埋め込むような形にしたい
-export const isMac = process.platform === "darwin";
+// NOTE: Webpack DefinePlugin で定義している see: vue.config.js
+export const isMac = Boolean(process.env.IS_MAC);
 
 export const engineIdSchema = z.string().uuid().brand<"EngineId">();
 export type EngineId = z.infer<typeof engineIdSchema>;

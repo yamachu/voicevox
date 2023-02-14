@@ -24,6 +24,13 @@ module.exports = {
   configureWebpack: {
     devtool: "source-map",
   },
+  chainWebpack: (config) => {
+    // ref: https://github.com/vuejs/vue-cli/issues/1647#issuecomment-459650275
+    config.plugin("define").tap((args) => {
+      args[0]["process.env"]["IS_MAC"] = JSON.stringify(isMac);
+      return args;
+    });
+  },
   pages: {
     index: {
       entry: "src/frontend/main.ts",
