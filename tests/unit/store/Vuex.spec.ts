@@ -1,17 +1,22 @@
 import { createLogger } from "vuex";
-import { indexStore } from "@/store/index";
-import { createStore } from "@/store/vuex";
-import { AllActions, AllGetters, AllMutations, State } from "@/store/type";
-import { commandStore } from "@/store/command";
-import { audioStore, audioCommandStore } from "@/store/audio";
-import { projectStore } from "@/store/project";
-import { uiStore } from "@/store/ui";
-import { settingStore } from "@/store/setting";
-import { presetStore } from "@/store/preset";
+import { indexStore } from "@/frontend/store/index";
+import { createStore } from "@/frontend/store/vuex";
+import {
+  AllActions,
+  AllGetters,
+  AllMutations,
+  State,
+} from "@/frontend/store/type";
+import { commandStore } from "@/frontend/store/command";
+import { audioStore, audioCommandStore } from "@/frontend/store/audio";
+import { projectStore } from "@/frontend/store/project";
+import { uiStore } from "@/frontend/store/ui";
+import { settingStore } from "@/frontend/store/setting";
+import { presetStore } from "@/frontend/store/preset";
 import { assert } from "chai";
-import { proxyStore } from "@/store/proxy";
-import { dictionaryStore } from "@/store/dictionary";
-import { engineStore } from "@/store/engine";
+import { proxyStore } from "@/frontend/store/proxy";
+import { dictionaryStore } from "@/frontend/store/dictionary";
+import { engineStore } from "@/frontend/store/engine";
 import { EngineId } from "@/type/preload";
 const isDevelopment = process.env.NODE_ENV == "development";
 // TODO: Swap external files to Mock

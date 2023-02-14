@@ -45,7 +45,7 @@ import {
   Voice,
   EngineId,
 } from "@/type/preload";
-import { IEngineConnectorFactory } from "@/infrastructures/EngineConnector";
+import { IEngineConnectorFactory } from "@/frontend/infrastructures/EngineConnector";
 import { QVueGlobals } from "quasar";
 
 /**

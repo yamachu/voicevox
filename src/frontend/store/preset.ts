@@ -1,4 +1,4 @@
-import { PresetStoreState, PresetStoreTypes } from "@/store/type";
+import { PresetStoreState, PresetStoreTypes } from "@/frontend/store/type";
 import { Preset } from "@/type/preload";
 import { createPartialStore } from "./vuex";
 

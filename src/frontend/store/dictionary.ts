@@ -1,5 +1,8 @@
 import { UserDictWord, UserDictWordToJSON } from "@/openapi";
-import { DictionaryStoreState, DictionaryStoreTypes } from "@/store/type";
+import {
+  DictionaryStoreState,
+  DictionaryStoreTypes,
+} from "@/frontend/store/type";
 import { EngineId } from "@/type/preload";
 import { createPartialStore } from "./vuex";
 

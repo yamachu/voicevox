@@ -6,7 +6,7 @@ import shlex from "shlex";
 import { BrowserWindow, dialog } from "electron";
 
 import path from "path";
-import { ipcMainSend } from "@/electron/ipc";
+import { ipcMainSend } from "@/backend/electron/ipc";
 
 import fs from "fs";
 import {

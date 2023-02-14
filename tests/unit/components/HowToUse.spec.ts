@@ -1,8 +1,8 @@
 import { shallowMount } from "@vue/test-utils";
 import HowToUse from "@/components/HowToUse.vue";
-import { markdownItPlugin } from "@/plugins/markdownItPlugin";
+import { markdownItPlugin } from "@/frontend/plugins/markdownItPlugin";
 import { createStore } from "vuex";
-import { storeKey } from "@/store";
+import { storeKey } from "@/frontend/store";
 import { QPage } from "quasar";
 
 const store = createStore({

@@ -3,11 +3,11 @@ import {
   AllActions,
   SaveResultObject,
   ErrorTypeForSaveAllResultDialog,
-} from "@/store/type";
+} from "@/frontend/store/type";
 import SaveAllResultDialog from "@/components/SaveAllResultDialog.vue";
 import { QVueGlobals } from "quasar";
-import { Dispatch } from "@/store/vuex";
-import { withProgress } from "@/store/ui";
+import { Dispatch } from "@/frontend/store/vuex";
+import { withProgress } from "@/frontend/store/ui";
 
 type QuasarDialog = QVueGlobals["dialog"];
 

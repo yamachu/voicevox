@@ -1,5 +1,9 @@
-import { createUILockAction } from "@/store/ui";
-import { AudioItem, ProjectStoreState, ProjectStoreTypes } from "@/store/type";
+import { createUILockAction } from "@/frontend/store/ui";
+import {
+  AudioItem,
+  ProjectStoreState,
+  ProjectStoreTypes,
+} from "@/frontend/store/type";
 import semver from "semver";
 import { buildProjectFileName, getBaseName } from "./utility";
 import { createPartialStore } from "./vuex";

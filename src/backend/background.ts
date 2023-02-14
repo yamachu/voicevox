@@ -18,7 +18,7 @@ import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
 import { textEditContextMenu } from "./electron/contextMenu";
 import { hasSupportedGpu } from "./electron/device";
-import { ipcMainHandle, ipcMainSend } from "@/electron/ipc";
+import { ipcMainHandle, ipcMainSend } from "@/backend/electron/ipc";
 
 import fs from "fs";
 import {
@@ -34,7 +34,7 @@ import {
   defaultToolbarButtonSetting,
   engineSettingSchema,
   EngineId,
-} from "./type/preload";
+} from "../type/preload";
 
 import log from "electron-log";
 import dayjs from "dayjs";

@@ -1,4 +1,4 @@
-import { State } from "@/store/type";
+import { State } from "@/frontend/store/type";
 import { ToolbarButtonTagType } from "@/type/preload";
 import path from "path";
 import { Platform } from "quasar";

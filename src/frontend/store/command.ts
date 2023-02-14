@@ -12,7 +12,7 @@ import {
   Mutation,
   MutationsBase,
   MutationTree,
-} from "@/store/vuex";
+} from "@/frontend/store/vuex";
 
 // ビルド後のモジュールとビルド前のモジュールは別のスコープで変数を持っているので
 // enable * も両方叩く必要がある。

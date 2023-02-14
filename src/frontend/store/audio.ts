@@ -35,7 +35,7 @@ import {
 } from "./utility";
 import { convertAudioQueryFromEditorToEngine } from "./proxy";
 import { createPartialStore } from "./vuex";
-import { base64ImageToUri } from "@/helpers/imageHelper";
+import { base64ImageToUri } from "@/frontend/helpers/imageHelper";
 
 async function generateUniqueIdAndQuery(
   state: State,

@@ -5,7 +5,7 @@ import App from "./App.vue";
 import router from "./router";
 import { store, storeKey } from "./store";
 import { ipcMessageReceiver } from "./plugins/ipcMessageReceiverPlugin";
-import { markdownItPlugin } from "@/plugins/markdownItPlugin";
+import { markdownItPlugin } from "@/frontend/plugins/markdownItPlugin";
 import { createGtm } from "@gtm-support/vue-gtm";
 
 import { Quasar, Dialog, Loading } from "quasar";

@@ -11,7 +11,7 @@ import {
 } from "@/type/preload";
 import { SettingStoreState, SettingStoreTypes } from "./type";
 import Mousetrap from "mousetrap";
-import { useStore } from "@/store";
+import { useStore } from "@/frontend/store";
 import { Dark, setCssVar, colors } from "quasar";
 import { createUILockAction } from "./ui";
 import { createPartialStore } from "./vuex";

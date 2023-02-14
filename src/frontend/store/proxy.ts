@@ -1,7 +1,7 @@
 import {
   IEngineConnectorFactory,
   OpenAPIEngineConnectorFactory,
-} from "@/infrastructures/EngineConnector";
+} from "@/frontend/infrastructures/EngineConnector";
 import { AudioQuery } from "@/openapi";
 import { EngineInfo } from "@/type/preload";
 import { ProxyStoreState, ProxyStoreTypes, EditorAudioQuery } from "./type";
