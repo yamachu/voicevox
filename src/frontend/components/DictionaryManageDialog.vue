@@ -724,8 +724,8 @@ const toDialogClosedState = () => {
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/colors' as colors;
-@use '@/styles/variables' as vars;
+@use '@/frontend/styles/colors' as colors;
+@use '@/frontend/styles/variables' as vars;
 
 .word-list-col {
   border-right: solid 1px colors.$surface;

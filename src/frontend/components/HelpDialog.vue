@@ -282,7 +282,7 @@ const selectedPageIndex = ref(0);
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/colors' as colors;
 
 .help-dialog .q-layout-container :deep(.absolute-full) {
   right: 0 !important;

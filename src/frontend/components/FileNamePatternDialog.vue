@@ -233,7 +233,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/colors' as colors;
 
 .setting-card {
   width: 100%;

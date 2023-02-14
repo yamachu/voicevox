@@ -88,7 +88,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/colors' as colors;
 
 .q-page-container {
   margin-top: 1em;

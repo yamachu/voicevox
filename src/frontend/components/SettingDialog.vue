@@ -1075,7 +1075,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@use "@/styles/colors" as colors;
+@use "@/frontend/styles/colors" as colors;
 
 .setting-dialog {
   .q-field__control {

@@ -719,8 +719,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/colors' as colors;
-@use '@/styles/variables' as vars;
+@use '@/frontend/styles/colors' as colors;
+@use '@/frontend/styles/variables' as vars;
 
 .engine-list-col {
   border-right: solid 1px colors.$surface;

@@ -108,7 +108,7 @@ const stopPropagation = undefined;
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/colors' as colors;
 
 div {
   padding: 0px;

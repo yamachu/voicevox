@@ -253,7 +253,7 @@ const isMultipleEngine = computed(() => store.state.engineIds.length > 1);
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/colors' as colors;
 
 .audio-cell {
   display: flex;

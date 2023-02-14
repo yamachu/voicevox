@@ -102,7 +102,7 @@ if (props.menudata.type === "root") {
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables' as vars;
+@use '@/frontend/styles/variables' as vars;
 
 .q-btn {
   min-height: 0;

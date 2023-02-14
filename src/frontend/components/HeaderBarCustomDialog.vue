@@ -309,8 +309,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/variables' as vars;
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/variables' as vars;
+@use '@/frontend/styles/colors' as colors;
 
 .header-bar-custom-dialog .q-layout-container :deep(.absolute-full) {
   right: 0 !important;

@@ -84,7 +84,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/colors' as colors;
+@use '@/frontend/styles/colors' as colors;
 
 .progress {
   background-color: rgba(colors.$display-rgb, 0.15);
