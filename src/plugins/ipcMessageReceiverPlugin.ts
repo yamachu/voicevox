@@ -10,7 +10,7 @@ export const ipcMessageReceiver: Plugin = {
   ) => {
     window.electron.onReceivedIPCMsg(
       "LOAD_PROJECT_FILE",
-      (_, { filePath, confirm } = {}) =>
+      ({ filePath, confirm } = {}) =>
         options.store.dispatch("LOAD_PROJECT_FILE", { filePath, confirm })
     );
 
@@ -22,10 +22,8 @@ export const ipcMessageReceiver: Plugin = {
       options.store.dispatch("DETECT_UNMAXIMIZED")
     );
 
-    window.electron.onReceivedIPCMsg(
-      "DETECTED_ENGINE_ERROR",
-      (_, { engineId }) =>
-        options.store.dispatch("DETECTED_ENGINE_ERROR", { engineId })
+    window.electron.onReceivedIPCMsg("DETECTED_ENGINE_ERROR", ({ engineId }) =>
+      options.store.dispatch("DETECTED_ENGINE_ERROR", { engineId })
     );
 
     window.electron.onReceivedIPCMsg("DETECT_PINNED", () => {
@@ -51,7 +49,7 @@ export const ipcMessageReceiver: Plugin = {
     window.electron.onReceivedIPCMsg(
       "DETECT_RESIZED",
       debounce(
-        (_, { width, height }) =>
+        ({ width, height }) =>
           window.dataLayer?.push({ event: "windowResize", width, height }),
         300
       )
