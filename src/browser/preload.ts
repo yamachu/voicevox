@@ -8,7 +8,7 @@ import {
 } from "@/type/preload";
 
 // FIXME: load worker background
-const _worker = new Worker("./background.js");
+const _worker = new Worker(new URL("./background.ts", import.meta.url));
 
 const api: typeof window.electron = {
   getAppInfos() {
