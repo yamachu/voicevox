@@ -619,3 +619,5 @@ export type EngineDirValidationResult =
   | "alreadyExists";
 
 export type VvppFilePathValidationResult = "ok" | "fileNotFound";
+
+export const MainWorldAPIKey = "electron" as const;

@@ -1,5 +1,7 @@
+import { MainWorldAPIKey } from "@/type/preload";
+
 declare global {
   interface Window {
-    readonly electron: import("@/type/preload").Sandbox;
+    readonly [MainWorldAPIKey]: import("@/type/preload").Sandbox;
   }
 }
