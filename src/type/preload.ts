@@ -1,4 +1,3 @@
-import { IpcRenderer, IpcRendererEvent, nativeTheme } from "electron";
 import { z } from "zod";
 import { IpcSOData } from "./ipc";
 
@@ -187,8 +186,8 @@ export interface Sandbox {
   isMaximizedWindow(): Promise<boolean>;
   onReceivedIPCMsg<T extends keyof IpcSOData>(
     channel: T,
-    listener: (event: IpcRendererEvent, ...args: IpcSOData[T]["args"]) => void
-  ): IpcRenderer;
+    listener: (...args: IpcSOData[T]["args"]) => void
+  ): void;
   closeWindow(): void;
   minimizeWindow(): void;
   maximizeWindow(): void;
@@ -436,7 +435,8 @@ export type ToolbarButtonTagType = z.infer<typeof toolbarButtonTagSchema>;
 export const toolbarSettingSchema = toolbarButtonTagSchema;
 export type ToolbarSetting = z.infer<typeof toolbarSettingSchema>[];
 
-export type NativeThemeType = typeof nativeTheme["themeSource"];
+// typeof nativeTheme["themeSource"]
+export type NativeThemeType = "system" | "light" | "dark";
 
 export type MoraDataType =
   | "consonant"
