@@ -1,16 +1,17 @@
 import { IpcSOData } from "@/type/ipc";
 import {
-  EngineId,
-  HotkeySetting,
-  NativeThemeType,
   ElectronStoreType,
+  EngineId,
   EngineSetting,
+  HotkeySetting,
+  MainWorldAPIKey,
+  NativeThemeType,
 } from "@/type/preload";
 
 // FIXME: load worker background
 const _worker = new Worker(new URL("./background.ts", import.meta.url));
 
-const api: typeof window.electron = {
+const api: typeof window[typeof MainWorldAPIKey] = {
   getAppInfos() {
     throw new Error("Not Implemented");
   },
@@ -182,4 +183,4 @@ const api: typeof window.electron = {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-window.electron = api;
+window[MainWorldAPIKey] = api;
