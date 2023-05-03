@@ -22,7 +22,7 @@ const proxyStoreCreator = (_engineFactory: IEngineConnectorFactory) => {
 
         const instance = _engineFactory.instance(engineInfo.host);
         return Promise.resolve({
-          invoke: { ...instance },
+          ...instance,
         });
       },
     },

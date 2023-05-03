@@ -419,7 +419,7 @@ watch(
       if (engineVersions.value[id]) continue;
       const version = await store
         .dispatch("INSTANTIATE_ENGINE_CONNECTOR", { engineId: id })
-        .then((instance) => instance.invoke("versionVersionGet")({}))
+        .then((instance) => instance.versionVersionGet())
         .catch(() => null);
       if (!version) continue;
       // "latest"のようにダブルクォーテーションで囲まれているので、JSON.parseで外す。

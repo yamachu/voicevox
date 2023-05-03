@@ -264,7 +264,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
       const speakers = await dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
         engineId,
       })
-        .then((instance) => instance.invoke("speakersSpeakersGet")({}))
+        .then((instance) => instance.speakersSpeakersGet({}))
         .catch((error) => {
           window.electron.logError(error, `Failed to get speakers.`);
           throw error;
@@ -304,7 +304,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
           engineId,
         })
           .then((instance) =>
-            instance.invoke("speakerInfoSpeakerInfoGet")({
+            instance.speakerInfoSpeakerInfoGet({
               speakerUuid: speaker.speakerUuid,
             })
           )
@@ -356,7 +356,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
       const rawMorphableTargets = (
         await (
           await dispatch("INSTANTIATE_ENGINE_CONNECTOR", { engineId })
-        ).invoke("morphableTargetsMorphableTargetsPost")({
+        ).morphableTargetsMorphableTargetsPost({
           requestBody: [baseStyleId],
         })
       )[0];
@@ -869,7 +869,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
         engineId,
       })
         .then((instance) =>
-          instance.invoke("audioQueryAudioQueryPost")({
+          instance.audioQueryAudioQueryPost({
             text,
             speaker: styleId,
           })
@@ -923,7 +923,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
         engineId,
       })
         .then((instance) =>
-          instance.invoke("accentPhrasesAccentPhrasesPost")({
+          instance.accentPhrasesAccentPhrasesPost({
             text,
             speaker: styleId,
             isKana,
@@ -1041,7 +1041,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
         engineId,
       })
         .then((instance) =>
-          instance.invoke("moraDataMoraDataPost")({
+          instance.moraDataMoraDataPost({
             accentPhrase: accentPhrases,
             speaker: styleId,
           })
@@ -1217,16 +1217,14 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
           if (audioItem.morphingInfo != undefined) {
             if (!getters.VALID_MORPHING_INFO(audioItem))
               throw new Error("VALID_MORPHING_ERROR"); //FIXME: エラーを変更した場合ハンドリング部分も修正する
-            blob = await instance.invoke(
-              "synthesisMorphingSynthesisMorphingPost"
-            )({
+            blob = await instance.synthesisMorphingSynthesisMorphingPost({
               audioQuery: engineAudioQuery,
               baseSpeaker: speaker,
               targetSpeaker: audioItem.morphingInfo.targetStyleId,
               morphRate: audioItem.morphingInfo.rate,
             });
           } else {
-            blob = await instance.invoke("synthesisSynthesisPost")({
+            blob = await instance.synthesisSynthesisPost({
               audioQuery: engineAudioQuery,
               speaker,
               enableInterrogativeUpspeak:
@@ -1254,7 +1252,7 @@ export const audioStore = createPartialStore<AudioStoreTypes>({
           engineId,
         })
           .then((instance) =>
-            instance.invoke("connectWavesConnectWavesPost")({
+            instance.connectWavesConnectWavesPost({
               requestBody: encodedBlobs,
             })
           )

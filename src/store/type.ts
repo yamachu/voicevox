@@ -1490,9 +1490,7 @@ export type IEngineConnectorFactoryActions = ReturnType<
 
 export type ProxyStoreTypes = {
   INSTANTIATE_ENGINE_CONNECTOR: {
-    action(payload: {
-      engineId: EngineId;
-    }): Promise<{ invoke: EngineInterface }>;
+    action(payload: { engineId: EngineId }): Promise<EngineInterface>;
   };
 };
 

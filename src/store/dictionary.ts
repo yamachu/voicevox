@@ -10,7 +10,7 @@ export const dictionaryStore = createPartialStore<DictionaryStoreTypes>({
     async action({ dispatch }, { engineId }) {
       const engineDict = await dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
         engineId,
-      }).then((instance) => instance.invoke("getUserDictWordsUserDictGet")({}));
+      }).then((instance) => instance.getUserDictWordsUserDictGet());
 
       // 50音順にソートするために、一旦arrayにする
       const dictArray = Object.keys(engineDict).map((k) => {
@@ -72,7 +72,7 @@ export const dictionaryStore = createPartialStore<DictionaryStoreTypes>({
       await dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
         engineId,
       }).then((instance) =>
-        instance.invoke("addUserDictWordUserDictWordPost")({
+        instance.addUserDictWordUserDictWordPost({
           surface,
           pronunciation,
           accentType,
@@ -95,7 +95,7 @@ export const dictionaryStore = createPartialStore<DictionaryStoreTypes>({
         await dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
           engineId,
         }).then((instance) =>
-          instance.invoke("rewriteUserDictWordUserDictWordWordUuidPut")({
+          instance.rewriteUserDictWordUserDictWordWordUuidPut({
             wordUuid,
             surface,
             pronunciation,
@@ -115,7 +115,7 @@ export const dictionaryStore = createPartialStore<DictionaryStoreTypes>({
         await dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
           engineId,
         }).then((instance) =>
-          instance.invoke("deleteUserDictWordUserDictWordWordUuidDelete")({
+          instance.deleteUserDictWordUserDictWordWordUuidDelete({
             wordUuid,
           })
         );
@@ -132,18 +132,14 @@ export const dictionaryStore = createPartialStore<DictionaryStoreTypes>({
           engineId,
         }).then(
           async (instance) =>
-            new Set(
-              Object.keys(
-                await instance.invoke("getUserDictWordsUserDictGet")({})
-              )
-            )
+            new Set(Object.keys(await instance.getUserDictWordsUserDictGet()))
         );
         if (Object.keys(mergedDict).some((id) => !dictIdSet.has(id))) {
           await dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
             engineId,
           }).then((instance) =>
             // マージした辞書をエンジンにインポートする。
-            instance.invoke("importUserDictWordsImportUserDictPost")({
+            instance.importUserDictWordsImportUserDictPost({
               override: true,
               requestBody: Object.fromEntries(
                 Object.entries(mergedDict).map(([k, v]) => [
@@ -168,11 +164,9 @@ export const dictionaryStore = createPartialStore<DictionaryStoreTypes>({
             // マージ処理で削除された項目をエンジンから削除する。
             Promise.all(
               [...removedDictIdSet].map((id) =>
-                instance.invoke("deleteUserDictWordUserDictWordWordUuidDelete")(
-                  {
-                    wordUuid: id,
-                  }
-                )
+                instance.deleteUserDictWordUserDictWordWordUuidDelete({
+                  wordUuid: id,
+                })
               )
             );
           }

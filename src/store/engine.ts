@@ -89,7 +89,7 @@ export const engineStore = createPartialStore<EngineStoreTypes>({
                   engineId,
                 }).then(async (instance) => [
                   engineId,
-                  await instance.invoke("engineManifestEngineManifestGet")({}),
+                  await instance.engineManifestEngineManifestGet(),
                 ])
             )
           )
@@ -145,7 +145,7 @@ export const engineStore = createPartialStore<EngineStoreTypes>({
           try {
             await dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
               engineId,
-            }).then((instance) => instance.invoke("versionVersionGet")({}));
+            }).then((instance) => instance.versionVersionGet());
           } catch {
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -287,7 +287,7 @@ export const engineStore = createPartialStore<EngineStoreTypes>({
         }
       ).then(
         (instance) =>
-          instance.invoke("isInitializedSpeakerIsInitializedSpeakerGet")({
+          instance.isInitializedSpeakerIsInitializedSpeakerGet({
             speaker: styleId,
           }) as unknown as string
       );
@@ -308,7 +308,7 @@ export const engineStore = createPartialStore<EngineStoreTypes>({
           dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
             engineId,
           }).then((instance) =>
-            instance.invoke("initializeSpeakerInitializeSpeakerPost")({
+            instance.initializeSpeakerInitializeSpeakerPost({
               speaker: styleId,
             })
           ),
@@ -373,9 +373,7 @@ export const engineStore = createPartialStore<EngineStoreTypes>({
         engineId,
         engineManifest: await this.dispatch("INSTANTIATE_ENGINE_CONNECTOR", {
           engineId,
-        }).then((instance) =>
-          instance.invoke("engineManifestEngineManifestGet")({})
-        ),
+        }).then((instance) => instance.engineManifestEngineManifestGet()),
       });
     },
   },
@@ -395,7 +393,7 @@ export const engineStore = createPartialStore<EngineStoreTypes>({
         engineId,
       }).then(
         async (instance) =>
-          await instance.invoke("supportedDevicesSupportedDevicesGet")({})
+          await instance.supportedDevicesSupportedDevicesGet({})
       );
 
       commit("SET_ENGINE_SUPPORTED_DEVICES", {
