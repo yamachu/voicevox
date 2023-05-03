@@ -11,11 +11,39 @@ import {
 import { createCommandMutationTree, PayloadRecipeTree } from "./command";
 import {
   AccentPhrase,
+  AccentPhrasesAccentPhrasesPostRequest,
+  AddPresetAddPresetPostRequest,
+  AddUserDictWordUserDictWordPostRequest,
   AudioQuery,
+  AudioQueryAudioQueryPostRequest,
+  AudioQueryFromPresetAudioQueryFromPresetPostRequest,
+  CancellableSynthesisCancellableSynthesisPostRequest,
+  ConnectWavesConnectWavesPostRequest,
+  DeletePresetDeletePresetPostRequest,
+  DeleteUserDictWordUserDictWordWordUuidDeleteRequest,
+  DownloadableLibrary,
   EngineManifest,
-  SupportedDevicesInfo,
-  UserDictWord,
+  ImportUserDictWordsImportUserDictPostRequest,
+  InitializeSpeakerInitializeSpeakerPostRequest,
+  IsInitializedSpeakerIsInitializedSpeakerGetRequest,
+  MoraDataMoraDataPostRequest,
+  MoraLengthMoraLengthPostRequest,
+  MoraPitchMoraPitchPostRequest,
   MorphableTargetInfo,
+  MorphableTargetsMorphableTargetsPostRequest,
+  MultiSynthesisMultiSynthesisPostRequest,
+  RewriteUserDictWordUserDictWordWordUuidPutRequest,
+  SettingPostSettingPostRequest,
+  Speaker,
+  SpeakerInfo,
+  SpeakerInfoSpeakerInfoGetRequest,
+  SpeakersSpeakersGetRequest,
+  SupportedDevicesInfo,
+  SupportedDevicesSupportedDevicesGetRequest,
+  SynthesisMorphingSynthesisMorphingPostRequest,
+  SynthesisSynthesisPostRequest,
+  UpdatePresetUpdatePresetPostRequest,
+  UserDictWord,
 } from "@/openapi";
 import {
   CharacterInfo,
@@ -1369,23 +1397,102 @@ export type DictionaryStoreTypes = {
 
 export type ProxyStoreState = Record<string, unknown>;
 
+export type EngineInterface = {
+  accentPhrasesAccentPhrasesPost(
+    requestParameters: AccentPhrasesAccentPhrasesPostRequest
+  ): Promise<Array<AccentPhrase>>;
+  addPresetAddPresetPost(
+    requestParameters: AddPresetAddPresetPostRequest
+  ): Promise<number>;
+  addUserDictWordUserDictWordPost(
+    requestParameters: AddUserDictWordUserDictWordPostRequest
+  ): Promise<string>;
+  audioQueryAudioQueryPost(
+    requestParameters: AudioQueryAudioQueryPostRequest
+  ): Promise<AudioQuery>;
+  audioQueryFromPresetAudioQueryFromPresetPost(
+    requestParameters: AudioQueryFromPresetAudioQueryFromPresetPostRequest
+  ): Promise<AudioQuery>;
+  cancellableSynthesisCancellableSynthesisPost(
+    requestParameters: CancellableSynthesisCancellableSynthesisPostRequest
+  ): Promise<Blob>;
+  connectWavesConnectWavesPost(
+    requestParameters: ConnectWavesConnectWavesPostRequest
+  ): Promise<Blob>;
+  coreVersionsCoreVersionsGet(): Promise<Array<string>>;
+  deletePresetDeletePresetPost(
+    requestParameters: DeletePresetDeletePresetPostRequest
+  ): Promise<void>;
+  deleteUserDictWordUserDictWordWordUuidDelete(
+    requestParameters: DeleteUserDictWordUserDictWordWordUuidDeleteRequest
+  ): Promise<void>;
+  downloadableLibrariesDownloadableLibrariesGet(): Promise<
+    Array<DownloadableLibrary>
+  >;
+  engineManifestEngineManifestGet(): Promise<EngineManifest>;
+  getPresetsPresetsGet(): Promise<Array<Preset>>;
+  getUserDictWordsUserDictGet(): Promise<{ [key: string]: UserDictWord }>;
+  importUserDictWordsImportUserDictPost(
+    requestParameters: ImportUserDictWordsImportUserDictPostRequest
+  ): Promise<void>;
+  initializeSpeakerInitializeSpeakerPost(
+    requestParameters: InitializeSpeakerInitializeSpeakerPostRequest
+  ): Promise<void>;
+  isInitializedSpeakerIsInitializedSpeakerGet(
+    requestParameters: IsInitializedSpeakerIsInitializedSpeakerGetRequest
+  ): Promise<boolean>;
+  moraDataMoraDataPost(
+    requestParameters: MoraDataMoraDataPostRequest
+  ): Promise<Array<AccentPhrase>>;
+  moraLengthMoraLengthPost(
+    requestParameters: MoraLengthMoraLengthPostRequest
+  ): Promise<Array<AccentPhrase>>;
+  moraPitchMoraPitchPost(
+    requestParameters: MoraPitchMoraPitchPostRequest
+  ): Promise<Array<AccentPhrase>>;
+  morphableTargetsMorphableTargetsPost(
+    requestParameters: MorphableTargetsMorphableTargetsPostRequest
+  ): Promise<Array<{ [key: string]: MorphableTargetInfo }>>;
+  multiSynthesisMultiSynthesisPost(
+    requestParameters: MultiSynthesisMultiSynthesisPostRequest
+  ): Promise<Blob>;
+  rewriteUserDictWordUserDictWordWordUuidPut(
+    requestParameters: RewriteUserDictWordUserDictWordWordUuidPutRequest
+  ): Promise<void>;
+  settingGetSettingGet(): Promise<string>;
+  settingPostSettingPost(
+    requestParameters: SettingPostSettingPostRequest
+  ): Promise<string>;
+  speakerInfoSpeakerInfoGet(
+    requestParameters: SpeakerInfoSpeakerInfoGetRequest
+  ): Promise<SpeakerInfo>;
+  speakersSpeakersGet(
+    requestParameters: SpeakersSpeakersGetRequest
+  ): Promise<Array<Speaker>>;
+  supportedDevicesSupportedDevicesGet(
+    requestParameters: SupportedDevicesSupportedDevicesGetRequest
+  ): Promise<SupportedDevicesInfo>;
+  synthesisMorphingSynthesisMorphingPost(
+    requestParameters: SynthesisMorphingSynthesisMorphingPostRequest
+  ): Promise<Blob>;
+  synthesisSynthesisPost(
+    requestParameters: SynthesisSynthesisPostRequest
+  ): Promise<Blob>;
+  updatePresetUpdatePresetPost(
+    requestParameters: UpdatePresetUpdatePresetPostRequest
+  ): Promise<number>;
+  versionVersionGet(): Promise<any>;
+};
+
 export type IEngineConnectorFactoryActions = ReturnType<
   IEngineConnectorFactory["instance"]
 >;
-
-type IEngineConnectorFactoryActionsMapper = <
-  K extends keyof IEngineConnectorFactoryActions
->(
-  action: K
-) => (
-  _: Parameters<IEngineConnectorFactoryActions[K]>[0]
-) => ReturnType<IEngineConnectorFactoryActions[K]>;
 
 export type ProxyStoreTypes = {
   INSTANTIATE_ENGINE_CONNECTOR: {
     action(payload: {
       engineId: EngineId;
-    }): Promise<{ invoke: IEngineConnectorFactoryActionsMapper }>;
+    }): Promise<{ invoke: EngineInterface }>;
   };
 };
 
