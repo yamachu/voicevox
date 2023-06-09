@@ -20,7 +20,10 @@ const proxyStoreCreator = (_engineFactory: IEngineConnectorFactory) => {
             new Error(`No such engineInfo registered: engineId == ${engineId}`)
           );
 
-        const instance = _engineFactory.instance(engineInfo.host);
+        const instance = _engineFactory.instance({
+          type: "openapi",
+          host: engineInfo.host,
+        });
         return Promise.resolve({
           ...instance,
         });
