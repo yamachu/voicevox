@@ -10,6 +10,7 @@ import checker from "vite-plugin-checker";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { BuildOptions, defineConfig, loadEnv, Plugin } from "vite";
 import { quasar } from "@quasar/vite-plugin";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 
 rmSync(path.resolve(__dirname, "dist"), { recursive: true, force: true });
 
@@ -111,6 +112,7 @@ export default defineConfig((options) => {
           },
         }),
       isBrowser && injectBrowserPreloadPlugin(),
+      isBrowser && options.mode === "development" && basicSsl(),
     ],
   };
 });
