@@ -30,7 +30,8 @@ import {
 } from "@/type/staticResources";
 
 // TODO: base pathを設定できるようにするか、ビルド時埋め込みにする
-const toStaticPath = (fileName: string) => `/${fileName}`;
+const toStaticPath = (fileName: string) =>
+  `${import.meta.env.BASE_PATH}/${fileName}`;
 
 /**
  * Browser版のSandBox実装
@@ -264,7 +265,7 @@ export const api: Sandbox = {
     return Promise.all(
       // FIXME: themeファイルのいい感じのパスの設定
       ["/themes/default.json", "/themes/dark.json"].map((url) =>
-        fetch(url).then((res) => res.json())
+        fetch(`${import.meta.env.BASE_PATH}/${url}`).then((res) => res.json())
       )
     )
       .then((v) => ({
