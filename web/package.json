@@ -1,0 +1,10 @@
+{
+  "name": "web-sw",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "hono": "4.10.7"
+  }
+}

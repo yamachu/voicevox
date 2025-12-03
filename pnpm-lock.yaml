@@ -304,6 +304,12 @@ importers:
         specifier: 1.0.11
         version: 1.0.11
 
+  web:
+    dependencies:
+      hono:
+        specifier: 4.10.7
+        version: 4.10.7
+
 packages:
 
   7zip-bin@5.2.0:
@@ -3117,6 +3123,10 @@ packages:
 
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
+
+  hono@4.10.7:
+    resolution: {integrity: sha512-icXIITfw/07Q88nLSkB9aiUrd8rYzSweK681Kjo/TSggaGbOX4RRyxxm71v+3PC8C/j+4rlxGeoTRxQDkaJkUw==}
+    engines: {node: '>=16.9.0'}
 
   hosted-git-info@4.1.0:
     resolution: {integrity: sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==}
@@ -8649,6 +8659,8 @@ snapshots:
 
   headers-polyfill@4.0.3:
     optional: true
+
+  hono@4.10.7: {}
 
   hosted-git-info@4.1.0:
     dependencies:
