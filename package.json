@@ -44,6 +44,8 @@
     "electron:build:pack": "electron-builder --config ./build/electronBuilderConfig.ts --publish never",
     "browser:serve": "cross-env VITE_TARGET=browser vite",
     "browser:build": "cross-env VITE_TARGET=browser vite build",
+    "browser-sw:serve": "cross-env VITE_TARGET=browser VITE_ENABLE_SERVICE_WORKER=true vite",
+    "browser-sw:build": "cross-env VITE_TARGET=browser VITE_ENABLE_SERVICE_WORKER=true vite build",
     "storybook": "storybook dev --port 6006",
     "storybook:build": "storybook build",
     "// --- lifecycle ---": "",
