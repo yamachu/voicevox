@@ -53,3 +53,6 @@ vendored
 
 # Cache
 .eslintcache
+
+# Service Worker
+public/sw.js
