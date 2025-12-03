@@ -179,6 +179,7 @@ export default defineConfig((options) => {
         ),
       isBrowser &&
         injectLoaderScriptPlugin("./backend/browser/backendApiLoader.ts"),
+      isBrowser && serviceWorkerPassthroughPlugin(),
     ],
 
     test: {
@@ -307,6 +308,33 @@ const checkSuspiciousImportsPlugin = (
         }
       }
       checkSuspiciousImports(files, options);
+    },
+  };
+};
+
+/**
+ * /sw/ 配下のリクエストに対して Vite の SPA フォールバック（index.html）を無効化する。
+ * これにより、ブラウザは Service Worker の fetch イベントでリクエストを処理できる。
+ *
+ * 注意: Service Worker の fetch イベントは、ページロード後に登録された SW が
+ * active になった後のリクエストでのみ発火する。
+ * dev 環境では、ページを一度リロードする場合がある。
+ */
+const serviceWorkerPassthroughPlugin = (): Plugin => {
+  return {
+    name: "service-worker-passthrough",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.startsWith("/sw/")) {
+          // 404 を返すことで Vite の SPA fallback を回避、特に /sw/version へのリクエストが 200 を返すとそのまま動作してしまうため、404 を返す
+          // Service Worker が active であれば、fetch イベントでこのリクエストを処理する
+          res.statusCode = 404;
+          res.setHeader("Content-Type", "text/plain");
+          res.end("Not Found - This path should be handled by Service Worker");
+          return;
+        }
+        next();
+      });
     },
   };
 };
