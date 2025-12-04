@@ -1,0 +1,3 @@
+[submodule "web/VoicevoxEngineSharp"]
+	path = web/VoicevoxEngineSharp
+	url = https://github.com/yamachu/VoicevoxEngineSharp.git
