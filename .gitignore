@@ -56,3 +56,11 @@ vendored
 
 # Service Worker
 public/sw.js
+public/sw-proxy.js
+
+# Web + wasm
+public/models
+public/open_jtalk_dic_utf_8-1.11.tgz
+
+# Dotnet
+public/_framework
