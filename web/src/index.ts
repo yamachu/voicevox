@@ -6,6 +6,7 @@ import {
   dummySpeakers,
   dummySupportedDevices,
 } from "./Contract.js";
+import { Engine } from "./Engine.js";
 import {
   InvalidRequestFieldError,
   InvalidRequestFieldTypeError,
@@ -13,10 +14,17 @@ import {
 
 declare const self: ServiceWorkerGlobalScope;
 
+const engine = new Engine();
+
 const app = new Hono().basePath("/sw");
 
 app.get("/version", async (c) => {
-  // MEMO: ここぐらいしかDictionaryのMountとかをして初期化する場所ないよな…？
+  // GETで初期化するなではあるんだけど、ここぐらいしかなくて…
+  const response = await fetch("./open_jtalk_dic_utf_8-1.11.tgz");
+  const arrayBuffer = await response.arrayBuffer();
+  const uint8Array = new Uint8Array(arrayBuffer);
+  await engine.initializeCore(uint8Array);
+
   return c.text("0.0.1");
 });
 
@@ -34,12 +42,12 @@ app.get("/is_initialized_speaker", (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  // Mapに格納したのを取得できたらtrue、なければfalseを返す想定
+  const isInitialized = engine.sessionInitialized(numericStyleId);
 
-  return c.json(true);
+  return c.json(isInitialized);
 });
 
-app.post("/initialize_speaker", (c) => {
+app.post("/initialize_speaker", async (c) => {
   const styleId = c.req.query("speaker");
   if (styleId === undefined) {
     throw new InvalidRequestFieldError("speaker");
@@ -49,7 +57,7 @@ app.post("/initialize_speaker", (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  // getSessionなどで管理しているMapに格納する想定
+  await engine.initializeSession(numericStyleId);
 
   return c.body(null, 204);
 });
@@ -65,7 +73,7 @@ app.get("/speaker_info", (c) => {
   return c.json(dummySpeakerInfo);
 });
 
-app.post("/audio_query", (c) => {
+app.post("/audio_query", async (c) => {
   const text = c.req.query("text");
   if (text === undefined) {
     throw new InvalidRequestFieldError("text");
@@ -79,12 +87,12 @@ app.post("/audio_query", (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  // TODO: Impl
+  const json = await engine.getAudioQuery(text, numericStyleId);
 
-  return c.json({});
+  return c.body(json, 200, { type: "application/json" });
 });
 
-app.post("/accent_phrases", (c) => {
+app.post("/accent_phrases", async (c) => {
   const text = c.req.query("text");
   if (text === undefined) {
     throw new InvalidRequestFieldError("text");
@@ -98,9 +106,9 @@ app.post("/accent_phrases", (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  // TODO: Impl
+  const json = await engine.getAccentPhrases(text, numericStyleId);
 
-  return c.json([]);
+  return c.body(json, 200, { type: "application/json" });
 });
 
 app.post("/mora_data", async (c) => {
@@ -115,9 +123,9 @@ app.post("/mora_data", async (c) => {
 
   const accentPhrasesJson = await c.req.text();
 
-  // TODO: Impl
+  const json = await engine.getMoraData(accentPhrasesJson, numericStyleId);
 
-  return c.json([]);
+  return c.body(json, 200, { type: "application/json" });
 });
 
 app.post("/synthesis", async (c) => {
@@ -132,9 +140,9 @@ app.post("/synthesis", async (c) => {
 
   const audioQueryJson = await c.req.text();
 
-  // TODO: Impl
+  const uint8Array = await engine.synthesize(audioQueryJson, numericStyleId);
 
-  return c.body(new Blob([], { type: "audio/wav" }));
+  return new Response(new Blob([uint8Array], { type: "audio/wav" }));
 });
 
 app.get("/user_dict", (c) => {

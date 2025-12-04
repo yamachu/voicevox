@@ -5,6 +5,12 @@
     "build": "vite build"
   },
   "dependencies": {
-    "hono": "4.10.7"
+    "@voicevoxenginesharp-wasm-web/core": "link:VoicevoxEngineSharp/src/WasmWeb.JS/core",
+    "@voicevoxenginesharp-wasm-web/inference": "link:VoicevoxEngineSharp/src/WasmWeb.JS/inference",
+    "hono": "4.10.7",
+    "onnxruntime-web": "1.23.2"
+  },
+  "devDependencies": {
+    "vite-plugin-wasm": "3.5.0"
   }
 }
