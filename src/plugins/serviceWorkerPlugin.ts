@@ -15,28 +15,10 @@ export const serviceWorkerPlugin: Plugin = {
       logger.warn("Service Worker is not supported in this browser.");
       return;
     }
-    void navigator.serviceWorker
-      .getRegistrations()
-      .then(function (registrations) {
-        for (const registration of registrations) {
-          logger.info("Unregister Service Worker");
-          void registration.unregister();
-        }
-        return navigator.serviceWorker
-          .register("/sw.js", {
-            scope: "/",
-            type: "module",
-            updateViaCache: "none",
-          })
-          .then((registration) => {
-            logger.info(
-              "Service Worker registered with scope:",
-              registration.scope,
-            );
-          })
-          .catch((error) => {
-            logger.error("Service Worker registration failed:", error);
-          });
-      });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    void import(/* @vite-ignore */ `${location.origin}/sw-proxy.js`).then((v) =>
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, prettier/prettier
+      v.registerServiceWorkerWithProxy()
+    );
   },
 };
