@@ -5,6 +5,7 @@
  * - メインスレッドとの双方向通信
  */
 import { Hono } from "hono";
+import { handle } from "hono/service-worker";
 import {
   dummyEngineManifest,
   dummySpeakerInfo,
@@ -386,16 +387,7 @@ self.addEventListener("fetch", (event: FetchEvent) => {
 
   // /sw で始まるリクエストのみ処理
   if (url.pathname.startsWith("/sw")) {
-    event.respondWith(
-      (async () => {
-        const response = await app.fetch(event.request);
-        // 404の場合はネットワークにフォールバック
-        if (response.status === 404) {
-          return fetch(event.request);
-        }
-        return response;
-      })()
-    );
+    handle(app)(event);
   }
   // その他のリクエストはネットワークにフォールバック
 });
