@@ -216,7 +216,7 @@ export async function registerServiceWorkerWithProxy(): Promise<ServiceWorkerReg
   }
 
   try {
-    const registration = await navigator.serviceWorker.register("/sw.js", {
+    const registration = await navigator.serviceWorker.register("./sw.js", {
       type: "module",
     });
     console.log("ServiceWorker registered:", registration);

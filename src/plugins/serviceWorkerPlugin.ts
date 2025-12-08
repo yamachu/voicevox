@@ -16,9 +16,9 @@ export const serviceWorkerPlugin: Plugin = {
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    void import(/* @vite-ignore */ `${location.origin}/sw-proxy.js`).then((v) =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, prettier/prettier
-      v.registerServiceWorkerWithProxy()
-    );
+    void import(
+      /* @vite-ignore */ `${import.meta.env.BASE_URL ?? location.origin}/sw-proxy.js`
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    ).then((v) => v.registerServiceWorkerWithProxy());
   },
 };

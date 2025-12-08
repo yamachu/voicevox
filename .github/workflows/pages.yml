@@ -94,7 +94,7 @@ jobs:
           EOF
 
       - run: |
-          cd web && pnpm build && cd -
+          cd web && pnpm build --base=${{ env.PAGES_BASE_URL }} && cd -
           pnpm run browser-sw:build --base=${{ env.PAGES_BASE_URL }}
 
       # publish

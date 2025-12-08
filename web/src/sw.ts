@@ -207,7 +207,10 @@ async function handleInferenceRequest(
   }
 }
 
-const app = new Hono().basePath("/sw");
+const maybeBase = import.meta.env.BASE_URL
+  ? new URL(import.meta.env.BASE_URL).pathname
+  : "/";
+const app = new Hono().basePath(maybeBase + "/sw");
 
 app.get("/version", async (c) => {
   await sendToMainThread("initialize");
@@ -385,8 +388,11 @@ self.addEventListener("message", (event: ExtendableMessageEvent) => {
 self.addEventListener("fetch", (event: FetchEvent) => {
   const url = new URL(event.request.url);
 
+  console.log(`SW Fetch: ${url.pathname}`);
+  const baseAppended = (maybeBase + "/sw").replace(/\/+/g, "/");
+
   // /sw で始まるリクエストのみ処理
-  if (url.pathname.startsWith("/sw")) {
+  if (url.pathname.startsWith(baseAppended)) {
     handle(app)(event);
   }
   // その他のリクエストはネットワークにフォールバック
