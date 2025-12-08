@@ -376,17 +376,6 @@ app.onError((err, c) => {
   );
 });
 
-// Service Workerのイベントハンドラを設定
-self.addEventListener("install", () => {
-  console.log("ServiceWorker installing...");
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", (event) => {
-  console.log("ServiceWorker activating...");
-  event.waitUntil(self.clients.claim());
-});
-
 // メインスレッドからのメッセージを処理
 self.addEventListener("message", (event: ExtendableMessageEvent) => {
   handleInferenceRequest(event);
