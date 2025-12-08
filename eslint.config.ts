@@ -246,4 +246,8 @@ export default defineConfigWithVueTs(
       ],
     },
   },
+
+  {
+    ignores: ["web/**"],
+  },
 );
