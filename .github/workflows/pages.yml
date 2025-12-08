@@ -1,0 +1,104 @@
+name: Deploy Web Sample to GitHub Pages
+
+on:
+  push:
+    branches:
+      - web-sw
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      PAGES_BASE_URL: https://yamachu.github.io/voicevox
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      # setup node
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+          package_json_file: web/VoicevoxEngineSharp/src/WasmWeb.JS/web-sample/package.json
+          version: 10
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+          cache-dependency-path: web/VoicevoxEngineSharp/src/WasmWeb.JS/pnpm-lock.yaml
+
+      # setup dotnet
+      - uses: actions/setup-dotnet@v5
+      - run: dotnet workload install wasm-tools
+
+      - run: cd web/VoicevoxEngineSharp && git clone https://github.com/Hiroshiba/vv_core_inference.git
+
+      # setup python
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.11'
+          working-directory: web/VoicevoxEngineSharp/vv_core_inference
+
+      # setup onnx model
+      - run: |
+          wget -O model.zip https://github.com/Hiroshiba/vv_core_inference/releases/download/0.0.3/model.zip
+          unzip -q model.zip -d web/VoicevoxEngineSharp/vv_core_inference/
+          rm model.zip
+      - run: |
+          cd web/VoicevoxEngineSharp/vv_core_inference
+          uv run convert.py --yukarin_s_model_dir "model/yukarin_s" --yukarin_sa_model_dir "model/yukarin_sa" --yukarin_sosoa_model_dir "model/yukarin_sosoa" --hifigan_model_dir "model/hifigan"
+      - run: |
+          mkdir -p public/models
+          cp -v web/VoicevoxEngineSharp/vv_core_inference/model/duration.onnx public/models/duration.onnx
+          cp -v web/VoicevoxEngineSharp/vv_core_inference/model/intonation.onnx public/models/intonation.onnx
+          cp -v web/VoicevoxEngineSharp/vv_core_inference/model/spectrogram.onnx public/models/spectrogram.onnx
+          cp -v web/VoicevoxEngineSharp/vv_core_inference/model/vocoder.onnx public/models/vocoder.onnx
+      # setup dictionary
+      - run: |
+          wget -O public/open_jtalk_dic_utf_8-1.11.tgz http://downloads.sourceforge.net/open-jtalk/open_jtalk_dic_utf_8-1.11.tar.gz
+      # build dotnet
+      - run: dotnet build
+        working-directory: web/VoicevoxEngineSharp/src/WasmWeb/src
+      - run: cp -r web/VoicevoxEngineSharp/src/WasmWeb/src/bin/Debug/net10.0/wwwroot/_framework public/_framework
+
+      # build js
+      - run: pnpm install
+        working-directory: web/VoicevoxEngineSharp/src/WasmWeb.JS
+      - run: |
+          cd core && pnpm build && cd -
+          cd inference && pnpm build && cd -
+        working-directory: web/VoicevoxEngineSharp/src/WasmWeb.JS
+      - run: pnpm install
+
+      # setup .env.production
+      - run: |
+          cat > .env.production << 'EOF'
+          VITE_APP_NAME=voicevox
+          VITE_DEFAULT_ENGINE_INFOS=`[
+              {
+                  "uuid": "680C0D1C-A5A6-416B-955D-1093A702EDCD",
+                  "name": "VOICEVOX Engine SW",
+                  "executionEnabled": false,
+                  "executionFilePath": "",
+                  "executionArgs": [],
+                  "host": "${{ env.PAGES_BASE_URL }}/sw"
+              }
+          ]`
+          VITE_OFFICIAL_WEBSITE_URL=https://voicevox.hiroshiba.jp/
+          VITE_LATEST_UPDATE_INFOS_URL=https://voicevox.hiroshiba.jp/updateInfos.json
+          VITE_GTM_CONTAINER_ID=GTM-DUMMY
+          EOF
+
+      - run: |
+          cd web && pnpm build && cd -
+          pnpm run browser-sw:build --base=${{ env.PAGES_BASE_URL }}
+
+      # publish
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4
