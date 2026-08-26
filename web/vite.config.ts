@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
+import dotnetWasm from "@yamachu/vite-plugin-dotnet-wasm";
 import wasm from "vite-plugin-wasm";
 
 const __dirname = import.meta.dirname;
@@ -10,9 +11,16 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["onnxruntime-web"],
   },
-  plugins: [wasm()],
+  plugins: [
+    dotnetWasm({
+      projectPath: "VoicevoxEngineSharp/src/WasmWeb/src/WasmWeb.csproj",
+      configuration: "Debug",
+    }),
+    wasm(),
+  ],
   build: {
     outDir: "../public",
+    assetsDir: "",
     target: "esnext",
     lib: {
       entry: {
@@ -21,20 +29,6 @@ export default defineConfig({
       },
       formats: ["es"],
       fileName: (format, entryName) => `${entryName}.js`,
-    },
-    rollupOptions: {
-      // DO NOT bundle dotnet runtime files
-      external: [/^\.\/_framework\//],
-      output: {
-        paths: (id) => {
-          // Keep _framework paths as-is in build output
-          if (id.startsWith("./_framework/")) {
-            return id;
-          }
-          return id;
-        },
-      },
-      makeAbsoluteExternalsRelative: false,
     },
   },
 });

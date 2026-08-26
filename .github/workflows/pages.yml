@@ -60,11 +60,6 @@ jobs:
       # setup dictionary
       - run: |
           wget -O public/open_jtalk_dic_utf_8-1.11.tgz http://downloads.sourceforge.net/open-jtalk/open_jtalk_dic_utf_8-1.11.tar.gz
-      # build dotnet
-      - run: dotnet build
-        working-directory: web/VoicevoxEngineSharp/src/WasmWeb/src
-      - run: cp -r web/VoicevoxEngineSharp/src/WasmWeb/src/bin/Debug/net10.0/wwwroot/_framework public/_framework
-
       # build js
       - run: pnpm install
         working-directory: web/VoicevoxEngineSharp/src/WasmWeb.JS
