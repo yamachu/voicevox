@@ -299,8 +299,8 @@ importers:
         version: 1.23.2
     devDependencies:
       '@yamachu/vite-plugin-dotnet-wasm':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.7.0
+        version: 0.7.0
       vite-plugin-wasm:
         specifier: 3.5.0
         version: 3.5.0(vite@8.0.13(@types/node@24.10.10)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.100.0)(tsx@4.22.1)(yaml@2.8.3))
@@ -2302,8 +2302,8 @@ packages:
     resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
     engines: {node: '>=10.0.0'}
 
-  '@yamachu/vite-plugin-dotnet-wasm@0.4.0':
-    resolution: {integrity: sha512-McB8D8HzRh4EcC0Cz4TQ5+Af7xXmyaYVWiCpjtK9rQXBJmRefh9ONJfwQVgKh5S9aaZMwDwwCwzkVpnzGimZLw==}
+  '@yamachu/vite-plugin-dotnet-wasm@0.7.0':
+    resolution: {integrity: sha512-j2jtNYWMg8E+JgB7mF13eJ2kdjKAEUqgF7N17hFhsPEnezPxsVv7h63l7EkPoqXAcNSsW1tvAt3+b77t1QJfTw==}
 
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
@@ -8354,7 +8354,7 @@ snapshots:
 
   '@xmldom/xmldom@0.8.13': {}
 
-  '@yamachu/vite-plugin-dotnet-wasm@0.4.0': {}
+  '@yamachu/vite-plugin-dotnet-wasm@0.7.0': {}
 
   abbrev@2.0.0: {}
 

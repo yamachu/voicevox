@@ -7,5 +7,8 @@ onlyBuiltDependencies:
   - esbuild
   - vue-demi
 
+minimumReleaseAgeExclude:
+  - "@yamachu/vite-plugin-dotnet-wasm"
+
 packages:
   - web

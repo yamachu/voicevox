@@ -1,4 +1,4 @@
-import { Plugin } from "vue";
+import { type Plugin } from "vue";
 import { createLogger } from "@/helpers/log";
 
 const logger = createLogger("serviceWorkerPlugin");

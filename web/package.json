@@ -11,7 +11,7 @@
     "onnxruntime-web": "1.23.2"
   },
   "devDependencies": {
-    "@yamachu/vite-plugin-dotnet-wasm": "0.4.0",
+    "@yamachu/vite-plugin-dotnet-wasm": "0.7.0",
     "vite-plugin-wasm": "3.5.0"
   }
 }
