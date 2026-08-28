@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { IpcSOData } from "./ipc";
-import { AltPortInfos } from "@/store/type";
-import { Result } from "@/type/result";
+import type { AltPortInfos } from "@/store/type";
+import type { Result } from "@/type/result";
 import {
-  HotkeySettingType,
+  type HotkeySettingType,
   hotkeySettingSchema,
   getDefaultHotkeySettings,
 } from "@/domain/hotkeyAction";
@@ -95,13 +94,23 @@ export interface Sandbox {
   readFile(obj: { filePath: string }): Promise<Result<Uint8Array>>;
   isAvailableGPUMode(): Promise<boolean>;
   isMaximizedWindow(): Promise<boolean>;
-  onReceivedIPCMsg(listeners: {
-    [K in keyof IpcSOData]: (
-      event: unknown,
-      ...args: IpcSOData[K]["args"]
-    ) => Promise<IpcSOData[K]["return"]> | IpcSOData[K]["return"];
+  registerIpcHandler(listeners: {
+    loadProjectFile: (obj: { filePath: string }) => void;
+    detectMaximized: () => void;
+    detectUnmaximized: () => void;
+    detectedEngineError: (obj: { engineId: EngineId }) => void;
+    detectPinned: () => void;
+    detectUnpinned: () => void;
+    detectEnterFullscreen: () => void;
+    detectLeaveFullscreen: () => void;
+    checkEditedAndNotSave: (obj: {
+      nextAction: "close" | "reload" | "switchToWelcome";
+      isMultiEngineOffMode?: boolean;
+    }) => void;
+    detectResized: (obj: { width: number; height: number }) => void;
   }): void;
   closeWindow(): void;
+  launchWelcomeWindow(): void;
   minimizeWindow(): void;
   toggleMaximizeWindow(): void;
   toggleFullScreen(): void;
@@ -135,6 +144,8 @@ export interface Sandbox {
   validateEngineDir(engineDir: string): Promise<EngineDirValidationResult>;
   reloadApp(obj: { isMultiEngineOffMode?: boolean }): Promise<void>;
   getPathForFile(file: File): Promise<string>;
+  hasDownloadableDefaultEngine(): Promise<boolean>;
+  getDownloadableDefaultEnginePackageIds(): Promise<EngineId[]>;
 }
 
 export type AppInfos = {
@@ -198,10 +209,6 @@ export type SplitTextWhenPasteType = "PERIOD_AND_NEW_LINE" | "NEW_LINE" | "OFF";
 
 export type EditorFontType = "default" | "os";
 
-export type SavingSetting = ConfigType["savingSetting"];
-
-export type EngineSettings = Record<EngineId, EngineSettingType>;
-
 export const engineSettingSchema = z.object({
   useGpu: z.boolean().default(false),
   outputSamplingRate: z
@@ -209,6 +216,25 @@ export const engineSettingSchema = z.object({
     .default("engineDefault"),
 });
 export type EngineSettingType = z.infer<typeof engineSettingSchema>;
+
+export const savingSettingSchema = z
+  .object({
+    fileEncoding: z.enum(["UTF-8", "Shift_JIS"]).default("UTF-8"),
+    fileNamePattern: z.string().default(""), // NOTE: ファイル名パターンは拡張子を含まない
+    fixedExportEnabled: z.boolean().default(false),
+    avoidOverwrite: z.boolean().default(false),
+    fixedExportDir: z.string().default(""),
+    exportLab: z.boolean().default(false),
+    exportText: z.boolean().default(false),
+    outputStereo: z.boolean().default(false),
+    audioOutputDevice: z.string().default(""),
+    songTrackFileNamePattern: z.string().default(""),
+  })
+  .prefault({});
+
+export type SavingSetting = z.infer<typeof savingSettingSchema>;
+
+export type EngineSettings = Record<EngineId, EngineSettingType>;
 
 export type DefaultStyleId = {
   engineId: EngineId;
@@ -360,6 +386,7 @@ export const splitterPositionSchema = z.object({
   portraitPaneWidth: z.number().optional(),
   audioInfoPaneWidth: z.number().optional(),
   audioDetailPaneHeight: z.number().optional(),
+  parameterPanelHeight: z.number().optional(),
 });
 export type SplitterPositionType = z.infer<typeof splitterPositionSchema>;
 
@@ -392,11 +419,13 @@ export const rootMiscSettingSchema = z.object({
     })
     .prefault({}),
   showSingCharacterPortrait: z.boolean().default(true), // ソングエディタで立ち絵を表示するか
+  defaultLyricMode: z.enum(["doremi", "la"]).default("doremi"), // デフォルト歌詞の動作モード
   playheadPositionDisplayFormat: z
     .enum(["MINUTES_SECONDS", "MEASURES_BEATS"])
     .default("MINUTES_SECONDS"), // 再生ヘッド位置の表示モード
   enableKatakanaEnglish: z.boolean().default(true), // 未知の英単語をカタカナ読みに変換するかどうか
   enableMultiSelect: z.boolean().default(true), // 複数選択を有効にするかどうか
+  showAudioLength: z.boolean().default(false), // 音声の長さを表示するかどうか
 });
 export type RootMiscSettingType = z.infer<typeof rootMiscSettingSchema>;
 
@@ -406,20 +435,7 @@ export function getConfigSchema({ isMac }: { isMac: boolean }) {
     activePointScrollMode: z
       .enum(["CONTINUOUSLY", "PAGE", "OFF"])
       .default("OFF"),
-    savingSetting: z
-      .object({
-        fileEncoding: z.enum(["UTF-8", "Shift_JIS"]).default("UTF-8"),
-        fileNamePattern: z.string().default(""), // NOTE: ファイル名パターンは拡張子を含まない
-        fixedExportEnabled: z.boolean().default(false),
-        avoidOverwrite: z.boolean().default(false),
-        fixedExportDir: z.string().default(""),
-        exportLab: z.boolean().default(false),
-        exportText: z.boolean().default(false),
-        outputStereo: z.boolean().default(false),
-        audioOutputDevice: z.string().default(""),
-        songTrackFileNamePattern: z.string().default(""),
-      })
-      .prefault({}),
+    savingSetting: savingSettingSchema,
     hotkeySettings: hotkeySettingSchema
       .array()
       .default(getDefaultHotkeySettings({ isMac })),
