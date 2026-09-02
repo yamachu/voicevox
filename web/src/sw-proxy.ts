@@ -11,7 +11,6 @@ import {
   getTransferableBuffer,
   isEngineResponse,
   normalizeAssetBaseUrl,
-  windowTimeoutMs,
 } from "./EngineWorkerProtocol.js";
 import type {
   EngineRequest,
@@ -31,6 +30,9 @@ function siblingUrl(fileName: string): URL {
 
 /** 辞書・モデル・_framework の基準URL。このスクリプトと同じディレクトリ */
 const assetBaseUrl = normalizeAssetBaseUrl("./", import.meta.url);
+
+/** ServiceWorker 側のタイムアウト(60秒)より僅かに短くして、必ずエラーを返す */
+const REQUEST_TIMEOUT_MS = 55000;
 
 /** Worker が続けて落ちる場合に無限再生成しないための制限 */
 const MAX_RESTART_COUNT = 3;
@@ -154,15 +156,14 @@ function forwardToEngineWorker(request: EngineRequest, target: ResponseTarget) {
     return;
   }
 
-  const timeoutMs = windowTimeoutMs(request.command);
   const timeoutId = window.setTimeout(() => {
     respond(request.id, {
       kind: "engineResponse",
       id: request.id,
       success: false,
-      error: `Engine worker request timeout: ${request.command} (${timeoutMs}ms)`,
+      error: `Engine worker request timeout: ${request.command}`,
     });
-  }, timeoutMs);
+  }, REQUEST_TIMEOUT_MS);
 
   responseTargets.set(request.id, { target, timeoutId });
 

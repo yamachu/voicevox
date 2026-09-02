@@ -15,10 +15,7 @@ import {
   InvalidRequestFieldError,
   InvalidRequestFieldTypeError,
 } from "./Error.js";
-import {
-  ENGINE_COMMAND_TIMEOUT_MS,
-  isEngineResponse,
-} from "./EngineWorkerProtocol.js";
+import { isEngineResponse } from "./EngineWorkerProtocol.js";
 import type {
   EngineCommand,
   EngineRequest,
@@ -63,13 +60,13 @@ async function sendToEngineClient<C extends EngineCommand>(
       reject,
     });
 
-    const timeoutMs = ENGINE_COMMAND_TIMEOUT_MS[command];
+    // 60秒でタイムアウト（synthesisが長い場合を考慮）
     setTimeout(() => {
       if (pendingRequests.has(id)) {
         pendingRequests.delete(id);
-        reject(new Error(`Request timeout: ${command} (${timeoutMs}ms)`));
+        reject(new Error(`Request timeout: ${command}`));
       }
-    }, timeoutMs);
+    }, 60000);
 
     client.postMessage({
       kind: "engineRequest",
