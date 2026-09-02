@@ -15,9 +15,15 @@ export const serviceWorkerPlugin: Plugin = {
       logger.warn("Service Worker is not supported in this browser.");
       return;
     }
+    // BASE_URL は "/" のようなパスにも "https://example.github.io/voicevox/" のような
+    // 絶対URLにもなり得るため、location を基準に解決する
+    const swProxyUrl = new URL(
+      "sw-proxy.js",
+      new URL(import.meta.env.BASE_URL || "/", location.href),
+    ).href;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     void import(
-      /* @vite-ignore */ `${import.meta.env.BASE_URL ?? location.origin}/sw-proxy.js`
+      /* @vite-ignore */ swProxyUrl
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     ).then((v) => v.registerServiceWorkerWithProxy());
   },

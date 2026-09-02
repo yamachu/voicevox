@@ -1,8 +1,7 @@
 /**
  * ServiceWorker
  * - API リクエストのルーティング
- * - ONNX 推論の実行
- * - メインスレッドとの双方向通信
+ * - ENGINE 処理は Window 経由で DedicatedWorker に委譲する
  */
 import { Hono } from "hono";
 import { handle } from "hono/service-worker";
@@ -16,14 +15,17 @@ import {
   InvalidRequestFieldError,
   InvalidRequestFieldTypeError,
 } from "./Error.js";
-import { InferenceWorker } from "./InferenceWorker.js";
+import { isEngineResponse } from "./EngineWorkerProtocol.js";
+import type {
+  EngineCommand,
+  EngineRequest,
+  EngineRequestData,
+  EngineResponseData,
+} from "./EngineWorkerProtocol.js";
 
 declare const self: ServiceWorkerGlobalScope;
 
-// 推論エンジン（ServiceWorker内で実行）
-const inferenceWorker = new InferenceWorker();
-
-// メインスレッドへのリクエストのコールバック管理
+// Window へのリクエストのコールバック管理
 const pendingRequests = new Map<
   string,
   {
@@ -33,13 +35,16 @@ const pendingRequests = new Map<
 >();
 
 /**
- * メインスレッドにリクエストを送信し、結果を待つ
- * audioQuery, accentPhrases, moraData, synthesis など .NET 処理用
+ * ENGINE を持つ Window にリクエストを送り、結果を待つ
+ *
+ * 実処理は Window がさらに DedicatedWorker へ転送する。
+ * NOTE: 現状は最初の Window を選ぶため、複数タブでは要求元とは別のタブの
+ * ENGINE が使われ得る。fetch event の clientId で宛先を選べるようにするのは別課題。
  */
-async function sendToMainThread<T>(
-  type: string,
-  data: Record<string, unknown> = {}
-): Promise<T> {
+async function sendToEngineClient<C extends EngineCommand>(
+  command: C,
+  data: EngineRequestData[C]
+): Promise<EngineResponseData[C]> {
   const clients = await self.clients.matchAll({ type: "window" });
 
   if (clients.length === 0) {
@@ -59,161 +64,54 @@ async function sendToMainThread<T>(
     setTimeout(() => {
       if (pendingRequests.has(id)) {
         pendingRequests.delete(id);
-        reject(new Error("Request timeout"));
+        reject(new Error(`Request timeout: ${command}`));
       }
     }, 60000);
 
-    client.postMessage({ id, type, data });
+    client.postMessage({
+      kind: "engineRequest",
+      id,
+      command,
+      data,
+    } satisfies EngineRequest<C>);
   });
 }
 
 /**
- * メインスレッドからのレスポンスを処理
+ * Window からのレスポンスを処理
  */
-function handleMainThreadResponse(event: ExtendableMessageEvent): void {
-  const { id, success, data, error } = event.data as {
-    id: string;
-    success: boolean;
-    data?: unknown;
-    error?: string;
-  };
+function handleEngineResponse(event: ExtendableMessageEvent): void {
+  const message = event.data as unknown;
+  if (!isEngineResponse(message)) {
+    console.warn("Unexpected message in ServiceWorker:", message);
+    return;
+  }
 
-  const pending = pendingRequests.get(id);
+  const pending = pendingRequests.get(message.id);
   if (!pending) return;
 
-  pendingRequests.delete(id);
+  pendingRequests.delete(message.id);
 
-  if (success) {
-    pending.resolve(data);
+  if (message.success) {
+    pending.resolve(message.data);
   } else {
-    pending.reject(new Error(error || "Unknown error"));
+    pending.reject(new Error(message.error || "Unknown error"));
   }
 }
 
-/**
- * メインスレッドからの推論リクエストを処理
- */
-async function handleInferenceRequest(
-  event: ExtendableMessageEvent
-): Promise<void> {
-  const { id, type, inferenceType, data } = event.data as {
-    id: string;
-    type: string;
-    inferenceType?: "yukarinS" | "yukarinSa" | "decode";
-    data?: Record<string, unknown>;
-  };
-
-  // レスポンスの場合（sendToMainThread への返答）
-  if (type === "response") {
-    handleMainThreadResponse(event);
-    return;
-  }
-
-  // 推論リクエストの場合
-  if (type !== "inference" || !inferenceType || !data) {
-    return;
-  }
-
-  const clients = await self.clients.matchAll({ type: "window" });
-  const client = clients[0];
-  if (!client) return;
-
-  try {
-    let result: number[];
-
-    switch (inferenceType) {
-      case "yukarinS": {
-        const { length, phonemeList, speakerId } = data as {
-          length: number;
-          phonemeList: number[];
-          speakerId: number[];
-        };
-        result = await inferenceWorker.yukarinSForward(
-          length,
-          phonemeList,
-          speakerId
-        );
-        break;
-      }
-
-      case "yukarinSa": {
-        const {
-          length,
-          vowelPhonemeList,
-          consonantPhonemeList,
-          startAccentList,
-          endAccentList,
-          startAccentPhraseList,
-          endAccentPhraseList,
-          speakerId,
-        } = data as {
-          length: number;
-          vowelPhonemeList: number[];
-          consonantPhonemeList: number[];
-          startAccentList: number[];
-          endAccentList: number[];
-          startAccentPhraseList: number[];
-          endAccentPhraseList: number[];
-          speakerId: number[];
-        };
-        result = await inferenceWorker.yukarinSaForward(
-          length,
-          vowelPhonemeList,
-          consonantPhonemeList,
-          startAccentList,
-          endAccentList,
-          startAccentPhraseList,
-          endAccentPhraseList,
-          speakerId
-        );
-        break;
-      }
-
-      case "decode": {
-        const { length, phonemeSize, f0, phoneme, speakerId } = data as {
-          length: number;
-          phonemeSize: number;
-          f0: number[];
-          phoneme: number[];
-          speakerId: number[];
-        };
-        result = await inferenceWorker.decodeForward(
-          length,
-          phonemeSize,
-          f0,
-          phoneme,
-          speakerId
-        );
-        break;
-      }
-
-      default:
-        throw new Error(`Unknown inference type: ${inferenceType}`);
-    }
-
-    client.postMessage({
-      id,
-      type: "inferenceResponse",
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    client.postMessage({
-      id,
-      type: "inferenceResponse",
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-}
-
-const maybeBase = import.meta.env.BASE_URL
-  ? new URL(import.meta.env.BASE_URL).pathname
-  : "/";
-const app = new Hono().basePath(maybeBase + "/sw");
+// BASE_URL は "/" や "./" のようなパスにも
+// "https://example.github.io/voicevox/" のような絶対URLにもなり得るため、
+// self.location を基準に解決してからパス部分だけを取り出す。
+// Vite は base を必ず "/" 終わりに正規化するので、末尾の "/" は落とす
+const basePath = new URL(
+  import.meta.env.BASE_URL || "/",
+  self.location.href
+).pathname.replace(/\/+$/, "");
+const engineBasePath = `${basePath}/sw`;
+const app = new Hono().basePath(engineBasePath);
 
 app.get("/version", async (c) => {
-  await sendToMainThread("initialize");
+  await sendToEngineClient("initialize", {});
 
   return c.text("0.0.1");
 });
@@ -232,8 +130,9 @@ app.get("/is_initialized_speaker", async (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  // ServiceWorker 内のセッション状態をチェック
-  const initialized = inferenceWorker.sessionInitialized(numericStyleId);
+  const { initialized } = await sendToEngineClient("isInitializedSpeaker", {
+    styleId: numericStyleId,
+  });
 
   return c.json(initialized);
 });
@@ -248,8 +147,7 @@ app.post("/initialize_speaker", async (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  // ServiceWorker 内でセッション初期化
-  await inferenceWorker.initializeSession(numericStyleId);
+  await sendToEngineClient("initializeSpeaker", { styleId: numericStyleId });
 
   return c.body(null, 204);
 });
@@ -279,7 +177,7 @@ app.post("/audio_query", async (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  const result = await sendToMainThread<{ json: string }>("audioQuery", {
+  const result = await sendToEngineClient("audioQuery", {
     text,
     styleId: numericStyleId,
   });
@@ -301,7 +199,7 @@ app.post("/accent_phrases", async (c) => {
     throw new InvalidRequestFieldTypeError("speaker", "number");
   }
 
-  const result = await sendToMainThread<{ json: string }>("accentPhrases", {
+  const result = await sendToEngineClient("accentPhrases", {
     text,
     styleId: numericStyleId,
   });
@@ -321,7 +219,7 @@ app.post("/mora_data", async (c) => {
 
   const accentPhrasesJson = await c.req.text();
 
-  const result = await sendToMainThread<{ json: string }>("moraData", {
+  const result = await sendToEngineClient("moraData", {
     accentPhrasesJson,
     styleId: numericStyleId,
   });
@@ -341,7 +239,7 @@ app.post("/synthesis", async (c) => {
 
   const audioQueryJson = await c.req.text();
 
-  const result = await sendToMainThread<{ buffer: ArrayBuffer }>("synthesis", {
+  const result = await sendToEngineClient("synthesis", {
     audioQueryJson,
     styleId: numericStyleId,
   });
@@ -380,19 +278,17 @@ app.onError((err, c) => {
   );
 });
 
-// メインスレッドからのメッセージを処理
+// Window からのレスポンスを処理
 self.addEventListener("message", (event: ExtendableMessageEvent) => {
-  handleInferenceRequest(event);
+  handleEngineResponse(event);
 });
 
 self.addEventListener("fetch", (event: FetchEvent) => {
   const url = new URL(event.request.url);
 
-  console.log(`SW Fetch: ${url.pathname}`);
-  const baseAppended = (maybeBase + "/sw").replace(/\/+/g, "/");
-
   // /sw で始まるリクエストのみ処理
-  if (url.pathname.startsWith(baseAppended)) {
+  if (url.pathname.startsWith(engineBasePath)) {
+    console.log(`SW Fetch: ${url.pathname}`);
     handle(app)(event);
   }
   // その他のリクエストはネットワークにフォールバック

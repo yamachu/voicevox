@@ -1,169 +1,173 @@
 /**
- * ServiceWorker からのリクエストをメインスレッドで処理するプロキシ
- * .NET WASMはServiceWorker内で動的importが禁止されているため、
- * メインスレッドで実行する必要がある
+ * ServiceWorker と DedicatedWorker を仲介するプロキシ
+ *
+ * ENGINE の実処理（.NET Wasm / OpenJTalk / ONNX 推論 / WAV 生成）は
+ * すべて engine-worker.js の中で動く。Window に残るのはメッセージの中継だけ。
+ *
+ * ServiceWorker は .NET Wasm の動的 import が禁止されているため直接は動かせず、
+ * また停止・再起動され得るため、Worker の所有はページ側（Window）で行う。
  */
-import { MainThreadEngine } from "./MainThreadEngine.js";
+import {
+  getTransferableBuffer,
+  isEngineResponse,
+  normalizeAssetBaseUrl,
+} from "./EngineWorkerProtocol.js";
+import type {
+  EngineRequest,
+  EngineResponse,
+} from "./EngineWorkerProtocol.js";
 
-let engine: MainThreadEngine | null = null;
-let isInitialized = false;
-let initPromise: Promise<void> | null = null;
+/** 辞書・モデル・_framework の基準URL。このスクリプトと同じディレクトリ */
+const assetBaseUrl = normalizeAssetBaseUrl("./", import.meta.url);
 
-// ServiceWorkerへのリクエストのコールバック管理
-const pendingInferenceRequests = new Map<
+/** ServiceWorker 側のタイムアウト(60秒)より僅かに短くして、必ずエラーを返す */
+const REQUEST_TIMEOUT_MS = 55000;
+
+/** Worker が続けて落ちる場合に無限再生成しないための制限 */
+const MAX_RESTART_COUNT = 3;
+const RESTART_WINDOW_MS = 60000;
+
+/** 応答の宛先。ServiceWorker からのメッセージなので Window ではない */
+type ResponseTarget = ServiceWorker | MessagePort;
+
+/** リクエストIDごとに、応答を返すべき ServiceWorker を覚えておく */
+const responseTargets = new Map<
   string,
-  {
-    resolve: (value: number[]) => void;
-    reject: (reason: unknown) => void;
-  }
+  { target: ResponseTarget; timeoutId: number }
 >();
 
-/**
- * ServiceWorkerに推論リクエストを送信
- */
-async function sendInferenceToServiceWorker(
-  inferenceType: "yukarinS" | "yukarinSa" | "decode",
-  data: unknown
-): Promise<number[]> {
-  const registration = await navigator.serviceWorker.ready;
-  const sw = registration.active;
-  if (!sw) {
-    throw new Error("No active ServiceWorker");
+let engineWorker: Worker | null = null;
+let restartCount = 0;
+let restartWindowStartedAt = 0;
+
+function respond(id: string, response: EngineResponse, buffer?: ArrayBuffer) {
+  const pending = responseTargets.get(id);
+  if (!pending) return;
+
+  responseTargets.delete(id);
+  clearTimeout(pending.timeoutId);
+
+  try {
+    pending.target.postMessage(response, buffer ? [buffer] : []);
+  } catch (error) {
+    console.error("Failed to forward engine response:", error);
   }
+}
 
-  const id = crypto.randomUUID();
-
-  return new Promise((resolve, reject) => {
-    pendingInferenceRequests.set(id, { resolve, reject });
-
-    // 60秒でタイムアウト（decode は長い場合がある）
-    setTimeout(() => {
-      if (pendingInferenceRequests.has(id)) {
-        pendingInferenceRequests.delete(id);
-        reject(new Error("Inference request timeout"));
-      }
-    }, 60000);
-
-    sw.postMessage({
+function failAllPending(reason: string) {
+  for (const id of [...responseTargets.keys()]) {
+    respond(id, {
+      kind: "engineResponse",
       id,
-      type: "inference",
-      inferenceType,
-      data,
+      success: false,
+      error: reason,
     });
+  }
+}
+
+/**
+ * Worker を破棄する。次のリクエストで再生成される
+ */
+function teardownEngineWorker(reason: string) {
+  if (engineWorker) {
+    engineWorker.terminate();
+    engineWorker = null;
+  }
+  failAllPending(reason);
+}
+
+function createEngineWorker(): Worker {
+  // NOTE: Vite の worker 変換に拾われないよう、URL は変数経由で組み立てる
+  const workerFileName = "./engine-worker.js";
+  const worker = new Worker(new URL(workerFileName, import.meta.url), {
+    type: "module",
   });
+
+  worker.addEventListener("message", (event: MessageEvent<unknown>) => {
+    const message = event.data;
+    if (!isEngineResponse(message)) {
+      // workerReady など。ログだけ出して無視する
+      return;
+    }
+
+    const buffer = message.success
+      ? getTransferableBuffer(message.data)
+      : undefined;
+    respond(message.id, message, buffer);
+  });
+
+  worker.addEventListener("error", (event) => {
+    console.error("Engine worker error:", event.message);
+    teardownEngineWorker(`Engine worker error: ${event.message}`);
+  });
+
+  worker.addEventListener("messageerror", () => {
+    console.error("Engine worker message could not be deserialized");
+    teardownEngineWorker("Engine worker message error");
+  });
+
+  return worker;
 }
 
-/**
- * エンジンを初期化する
- */
-async function initializeEngine(): Promise<void> {
-  if (isInitialized) return;
-  if (initPromise) return initPromise;
+function ensureEngineWorker(): Worker {
+  if (engineWorker) {
+    return engineWorker;
+  }
 
-  initPromise = (async () => {
-    engine = new MainThreadEngine();
-
-    // 推論ハンドラを設定（ServiceWorkerに委譲）
-    engine.setInferenceHandler(sendInferenceToServiceWorker);
-
-    const response = await fetch("./open_jtalk_dic_utf_8-1.11.tgz");
-    const arrayBuffer = await response.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    await engine.initializeCore(uint8Array);
-
-    isInitialized = true;
-    console.log(
-      "Engine initialized in main thread (inference delegated to ServiceWorker)"
+  const now = Date.now();
+  if (now - restartWindowStartedAt > RESTART_WINDOW_MS) {
+    restartWindowStartedAt = now;
+    restartCount = 0;
+  }
+  if (restartCount >= MAX_RESTART_COUNT) {
+    throw new Error(
+      `Engine worker failed ${MAX_RESTART_COUNT} times, giving up. Reload the page.`
     );
-  })();
+  }
+  restartCount++;
 
-  return initPromise;
+  engineWorker = createEngineWorker();
+  return engineWorker;
 }
 
 /**
- * ServiceWorkerからのメッセージを処理する
+ * ServiceWorker から来た ENGINE リクエストを Worker へ転送する
  */
-async function handleMessage(
-  event: MessageEvent /* TODO: 型付け */
-): Promise<unknown> {
-  const { type, data } = event.data as {
-    type: string;
-    data: Record<string, unknown>;
-  };
-
-  if (!engine && type !== "initialize") {
-    throw new Error("Engine not initialized");
+function forwardToEngineWorker(request: EngineRequest, target: ResponseTarget) {
+  let worker: Worker;
+  try {
+    worker = ensureEngineWorker();
+  } catch (error) {
+    target.postMessage({
+      kind: "engineResponse",
+      id: request.id,
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    } satisfies EngineResponse);
+    return;
   }
 
-  switch (type) {
-    case "initialize":
-      await initializeEngine();
-      return { success: true };
+  const timeoutId = window.setTimeout(() => {
+    respond(request.id, {
+      kind: "engineResponse",
+      id: request.id,
+      success: false,
+      error: `Engine worker request timeout: ${request.command}`,
+    });
+  }, REQUEST_TIMEOUT_MS);
 
-    case "audioQuery": {
-      const text = data.text as string;
-      const styleId = data.styleId as number;
-      const json = await engine!.getAudioQuery(text, styleId);
-      return { json };
-    }
+  responseTargets.set(request.id, { target, timeoutId });
 
-    case "accentPhrases": {
-      const text = data.text as string;
-      const styleId = data.styleId as number;
-      const json = await engine!.getAccentPhrases(text, styleId);
-      return { json };
-    }
+  // initialize には Window が把握しているアセット基準URLを渡す
+  const forwarded: EngineRequest =
+    request.command === "initialize"
+      ? {
+          ...request,
+          data: { assetBaseUrl: request.data.assetBaseUrl ?? assetBaseUrl },
+        }
+      : request;
 
-    case "moraData": {
-      const accentPhrasesJson = data.accentPhrasesJson as string;
-      const styleId = data.styleId as number;
-      const json = await engine!.getMoraData(accentPhrasesJson, styleId);
-      return { json };
-    }
-
-    case "synthesis": {
-      const audioQueryJson = data.audioQueryJson as string;
-      const styleId = data.styleId as number;
-      const uint8Array = await engine!.synthesize(audioQueryJson, styleId);
-      return { buffer: uint8Array.buffer };
-    }
-
-    default:
-      console.warn(`Unknown message type: ${type}`);
-      return null;
-  }
-}
-
-/**
- * ServiceWorkerからの推論レスポンスを処理
- */
-function handleInferenceResponse(event: MessageEvent): boolean {
-  const { id, type, success, data, error } = event.data as {
-    id: string;
-    type: string;
-    success?: boolean;
-    data?: number[];
-    error?: string;
-  };
-
-  if (type !== "inferenceResponse") {
-    return false;
-  }
-
-  const pending = pendingInferenceRequests.get(id);
-  if (!pending) {
-    return true;
-  }
-
-  pendingInferenceRequests.delete(id);
-
-  if (success) {
-    pending.resolve(data!);
-  } else {
-    pending.reject(new Error(error || "Inference failed"));
-  }
-
-  return true;
+  worker.postMessage(forwarded);
 }
 
 /**
@@ -175,35 +179,33 @@ export function setupServiceWorkerProxy(): void {
     return;
   }
 
-  // ServiceWorkerからのメッセージを受け取る
-  navigator.serviceWorker.addEventListener("message", async (event) => {
-    // 推論レスポンスの場合は別処理
-    if (handleInferenceResponse(event)) {
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    const request = event.data as unknown;
+    if (
+      typeof request !== "object" ||
+      request == null ||
+      (request as { kind?: unknown }).kind !== "engineRequest"
+    ) {
+      console.warn("Unexpected message from ServiceWorker:", request);
       return;
     }
 
-    const { id } = event.data as { id: string };
-
-    try {
-      const result = await handleMessage(event);
-      // ServiceWorkerへ結果を返す（type: "response" で明示）
-      event.source?.postMessage({
-        id,
-        type: "response",
-        success: true,
-        data: result,
-      });
-    } catch (error) {
-      event.source?.postMessage({
-        id,
-        type: "response",
-        success: false,
-        error: error instanceof Error ? error.message : String(error),
-      });
+    // 応答は必ずリクエスト元の ServiceWorker へ返す
+    // navigator.serviceWorker.controller とは一致しない場合がある
+    const target = event.source;
+    if (!(target instanceof ServiceWorker) && !(target instanceof MessagePort)) {
+      console.warn("Engine request has no source to respond to");
+      return;
     }
+
+    forwardToEngineWorker(request as EngineRequest, target);
   });
 
-  console.log("ServiceWorker proxy setup complete (with inference delegation)");
+  // NOTE: DedicatedWorker はページが破棄されると自動的に終了するため、
+  // pagehide 等で明示的に terminate はしない（back/forward cache で復帰した際に
+  // ランタイムを失うのを避ける）
+
+  console.log("ServiceWorker proxy setup complete (engine runs in a worker)");
 }
 
 /**
@@ -216,9 +218,10 @@ export async function registerServiceWorkerWithProxy(): Promise<ServiceWorkerReg
   }
 
   try {
-    const registration = await navigator.serviceWorker.register("./sw.js", {
-      type: "module",
-    });
+    const registration = await navigator.serviceWorker.register(
+      new URL("./sw.js", import.meta.url),
+      { type: "module" }
+    );
     console.log("ServiceWorker registered:", registration);
 
     setupServiceWorkerProxy();
