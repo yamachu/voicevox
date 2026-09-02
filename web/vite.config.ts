@@ -26,9 +26,17 @@ export default defineConfig({
       entry: {
         sw: resolve(__dirname, "src/sw.ts"),
         "sw-proxy": resolve(__dirname, "src/sw-proxy.ts"),
+        "engine-worker": resolve(__dirname, "src/engine-worker.ts"),
       },
       formats: ["es"],
       fileName: (format, entryName) => `${entryName}.js`,
+    },
+    rollupOptions: {
+      output: {
+        // 複数エントリで共有されるモジュールは分割されるため、
+        // public/ に古いハッシュ付きファイルが残らないよう固定名にする
+        chunkFileNames: "[name].js",
+      },
     },
   },
 });

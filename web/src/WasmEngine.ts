@@ -1,6 +1,8 @@
 /**
- * メインスレッド用エンジン
- * .NET Wasm Runtime に関する処理を実行する
+ * .NET Wasm Runtime に関する処理を実行するエンジン
+ *
+ * DedicatedWorker 内で生成される想定で、DOM にも ServiceWorker にも依存しない。
+ * 推論は setInferenceHandler() で注入されたハンドラへ委譲する。
  */
 import { initialize } from "@voicevoxenginesharp-wasm-web/core";
 
@@ -9,7 +11,7 @@ type InferenceHandler = (
   data: unknown
 ) => Promise<number[]>;
 
-export class MainThreadEngine {
+export class WasmEngine {
   private isInitialized: boolean = false;
   private initializeInProgress: boolean = false;
   private dotnetExportedFunctions: Awaited<
@@ -25,47 +27,46 @@ export class MainThreadEngine {
   }
 
   /**
-   * 推論ハンドラを設定（ServiceWorkerへの委譲用）
+   * .NET から呼ばれる推論を実行するハンドラを設定する
    */
   setInferenceHandler(handler: InferenceHandler): void {
     this.inferenceHandler = handler;
   }
 
   async initializeCore(openJTalkDictArray: Uint8Array): Promise<void> {
-    if (this.initializeInProgress) {
-      return Promise.reject(new Error("Initialization already in progress"));
-    }
     if (this.isInitialized) {
-      return Promise.resolve();
+      return;
+    }
+    if (this.initializeInProgress) {
+      throw new Error("Initialization already in progress");
     }
     this.initializeInProgress = true;
 
-    // .NET Wasm ランタイムを初期化
-    // 推論は ServiceWorker に委譲するプロキシを注入
-    const exportedFunction = await initialize({
-      decodeForward: this.proxyDecodeForward,
-      yukarinSForward: this.proxyYukarinSForward,
-      yukarinSaForward: this.proxyYukarinSaForward,
-    });
-
-    this.dotnetExportedFunctions = exportedFunction;
-
-    await exportedFunction.VoicevoxEngineSharp.WasmWeb.IOHelper.MountDictionaryAsync(
-      openJTalkDictArray
-    )
-      .then(() => {
-        console.log("✓ Mounted dictionary");
-      })
-      .then(() => {
-        exportedFunction.VoicevoxEngineSharp.WasmWeb.SynthesisExports.Initialize(
-          "/tmp/open_jtalk_dic_utf_8-1.11"
-        );
-        console.log("✓ Initialized synthesis exports");
-      })
-      .then(() => {
-        this.isInitialized = true;
-        this.initializeInProgress = false;
+    try {
+      // .NET Wasm ランタイムを初期化し、推論プロキシを注入する
+      const exportedFunction = await initialize({
+        decodeForward: this.proxyDecodeForward,
+        yukarinSForward: this.proxyYukarinSForward,
+        yukarinSaForward: this.proxyYukarinSaForward,
       });
+
+      this.dotnetExportedFunctions = exportedFunction;
+
+      await exportedFunction.VoicevoxEngineSharp.WasmWeb.IOHelper.MountDictionaryAsync(
+        openJTalkDictArray
+      );
+      console.log("✓ Mounted dictionary");
+
+      exportedFunction.VoicevoxEngineSharp.WasmWeb.SynthesisExports.Initialize(
+        "/tmp/open_jtalk_dic_utf_8-1.11"
+      );
+      console.log("✓ Initialized synthesis exports");
+
+      this.isInitialized = true;
+    } finally {
+      // 失敗時も必ず戻し、リトライ可能にする
+      this.initializeInProgress = false;
+    }
   }
 
   async getAudioQuery(text: string, speakerId: number): Promise<string> {
@@ -148,7 +149,7 @@ export class MainThreadEngine {
   }
 
   /**
-   * yukarinS 推論を ServiceWorker に委譲
+   * yukarinS 推論をハンドラへ委譲
    */
   private async proxyYukarinSForward(
     length: number,
@@ -166,7 +167,7 @@ export class MainThreadEngine {
   }
 
   /**
-   * yukarinSa 推論を ServiceWorker に委譲
+   * yukarinSa 推論をハンドラへ委譲
    */
   private async proxyYukarinSaForward(
     length: number,
@@ -194,7 +195,7 @@ export class MainThreadEngine {
   }
 
   /**
-   * decode 推論を ServiceWorker に委譲
+   * decode 推論をハンドラへ委譲
    */
   private async proxyDecodeForward(
     length: number,

@@ -143,6 +143,8 @@ rulesync.local.jsonc
 # Service Worker
 public/sw.js
 public/sw-proxy.js
+public/engine-worker.js
+public/EngineWorkerProtocol.js
 
 # Web + wasm
 public/models
