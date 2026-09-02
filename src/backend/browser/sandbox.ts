@@ -18,11 +18,9 @@ import {
   type Sandbox,
 } from "@/type/preload";
 import { AssetTextFileNames } from "@/type/staticResources";
+import { resolveStaticUrl } from "@/helpers/baseUrl";
 import type { HotkeySettingType } from "@/domain/hotkeyAction";
 import path from "@/helpers/path";
-
-const toStaticPath = (fileName: string) =>
-  `${import.meta.env.BASE_URL}/${fileName}`.replaceAll(/\/\/+/g, "/");
 
 /**
  * Browser版のSandBox実装
@@ -32,7 +30,7 @@ const toStaticPath = (fileName: string) =>
 export const api: Sandbox = {
   async getTextAsset(textType) {
     const fileName = AssetTextFileNames[textType];
-    const v = await fetch(toStaticPath(fileName));
+    const v = await fetch(resolveStaticUrl(fileName));
     if (textType === "OssLicenses" || textType === "UpdateInfos") {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return v.json();
