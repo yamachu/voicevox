@@ -17,6 +17,17 @@ import type {
   EngineResponse,
 } from "./EngineWorkerProtocol.js";
 
+/**
+ * このスクリプトと同じディレクトリにあるファイルのURLを組み立てる
+ *
+ * NOTE: new URL("./x.js", import.meta.url) をリテラルで書くと Vite の
+ * asset / worker 変換に拾われ、ビルド時に src の .ts が data URI として
+ * 埋め込まれてしまう。第1引数は必ず変数経由で渡す。
+ */
+function siblingUrl(fileName: string): URL {
+  return new URL(fileName, import.meta.url);
+}
+
 /** 辞書・モデル・_framework の基準URL。このスクリプトと同じディレクトリ */
 const assetBaseUrl = normalizeAssetBaseUrl("./", import.meta.url);
 
@@ -77,9 +88,7 @@ function teardownEngineWorker(reason: string) {
 }
 
 function createEngineWorker(): Worker {
-  // NOTE: Vite の worker 変換に拾われないよう、URL は変数経由で組み立てる
-  const workerFileName = "./engine-worker.js";
-  const worker = new Worker(new URL(workerFileName, import.meta.url), {
+  const worker = new Worker(siblingUrl("./engine-worker.js"), {
     type: "module",
   });
 
@@ -219,7 +228,7 @@ export async function registerServiceWorkerWithProxy(): Promise<ServiceWorkerReg
 
   try {
     const registration = await navigator.serviceWorker.register(
-      new URL("./sw.js", import.meta.url),
+      siblingUrl("./sw.js"),
       { type: "module" }
     );
     console.log("ServiceWorker registered:", registration);
