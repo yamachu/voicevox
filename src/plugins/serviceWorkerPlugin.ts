@@ -15,12 +15,15 @@ export const serviceWorkerPlugin: Plugin = {
       logger.warn("Service Worker is not supported in this browser.");
       return;
     }
-    // BASE_URL は "/" のようなパスにも "https://example.github.io/voicevox/" のような
-    // 絶対URLにもなり得るため、location を基準に解決する
-    const swProxyUrl = new URL(
-      "sw-proxy.js",
-      new URL(import.meta.env.BASE_URL || "/", location.href),
-    ).href;
+    // BASE_URL は "/" のようなパスにも "https://example.github.io/voicevox" のような
+    // 絶対URLにもなり得る。Vite は base が外部URLの場合は値をそのまま返すため
+    // 末尾スラッシュが保証されず、そのまま相対解決すると最後のセグメントを
+    // 失って https://example.github.io/sw-proxy.js になる。
+    const baseUrl = new URL(import.meta.env.BASE_URL || "/", location.href);
+    if (!baseUrl.pathname.endsWith("/")) {
+      baseUrl.pathname += "/";
+    }
+    const swProxyUrl = new URL("sw-proxy.js", baseUrl).href;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     void import(
       /* @vite-ignore */ swProxyUrl
