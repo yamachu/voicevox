@@ -54,6 +54,31 @@ export type EngineResponse = {
   | { success: false; error: string }
 );
 
+/**
+ * コマンドごとのタイムアウト(ms)
+ *
+ * initialize は engine-worker.js の取得・パース、22MB の辞書取得、
+ * .NET ランタイム起動、辞書展開をすべて含むため長く取る。
+ */
+export const ENGINE_COMMAND_TIMEOUT_MS: Record<EngineCommand, number> = {
+  initialize: 300000,
+  // ONNX セッション生成（モデル取得 + WebGPU 初期化）
+  initializeSpeaker: 180000,
+  isInitializedSpeaker: 10000,
+  audioQuery: 60000,
+  accentPhrases: 60000,
+  moraData: 60000,
+  synthesis: 120000,
+};
+
+/**
+ * Window 側のタイムアウト
+ * ServiceWorker 側より僅かに短くして、必ず Worker 経路のエラーを返す
+ */
+export function windowTimeoutMs(command: EngineCommand): number {
+  return Math.max(ENGINE_COMMAND_TIMEOUT_MS[command] - 5000, 5000);
+}
+
 /** DedicatedWorker が起動直後に一度だけ送る */
 export type WorkerReady = { kind: "workerReady" };
 

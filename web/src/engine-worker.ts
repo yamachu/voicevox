@@ -126,6 +126,10 @@ function ensureInitialized(requestedAssetBaseUrl?: string): Promise<void> {
   }
 
   initializePromise = (async () => {
+    // 初期化は数十秒かかるため、どの段階が重いか分かるよう計測する
+    const startedAt = performance.now();
+    const elapsed = () => `${Math.round(performance.now() - startedAt)}ms`;
+
     const engine = new WasmEngine();
     engine.setInferenceHandler(dispatchInference);
 
@@ -136,10 +140,16 @@ function ensureInitialized(requestedAssetBaseUrl?: string): Promise<void> {
         `Dictionary download failed: ${response.status} (${dictionaryUrl.href})`
       );
     }
+    const dictionary = new Uint8Array(await response.arrayBuffer());
+    console.log(
+      `[engine-worker] Downloaded dictionary (${dictionary.byteLength} bytes) in ${elapsed()}`
+    );
 
-    await engine.initializeCore(new Uint8Array(await response.arrayBuffer()));
+    await engine.initializeCore(dictionary);
     wasmEngine = engine;
-    console.log("[engine-worker] Engine initialized in dedicated worker");
+    console.log(
+      `[engine-worker] Engine initialized in dedicated worker in ${elapsed()}`
+    );
   })();
 
   // 失敗した初期化は保持せず、次のリクエストでやり直せるようにする
