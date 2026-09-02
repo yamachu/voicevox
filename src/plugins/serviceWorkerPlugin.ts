@@ -1,4 +1,4 @@
-import { type Plugin } from "vue";
+import type { Plugin } from "vue";
 import { resolveStaticUrl } from "@/helpers/baseUrl";
 import { createLogger } from "@/helpers/log";
 
