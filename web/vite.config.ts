@@ -13,14 +13,19 @@ const ortDistDir = dirname(require.resolve("onnxruntime-web"));
 /**
  * 非 bundle 版 onnxruntime-web が実行時に読み込むファイル
  *
- * ort.min.mjs が読む glue は "ort-wasm-simd-threaded.jsep.mjs" 固定で、
- * wasm EP へのフォールバックもこの jsep ビルドに含まれる。
+ * ort.min.mjs が読む glue は jsep ビルド固定で、wasm EP への
+ * フォールバックもこの jsep ビルドに含まれる。
  * 非 jsep 版はどこからも参照されないためコピーしない。
+ *
+ * glue は .mjs から .js へ改名して配る。glue は dynamic import で
+ * 読まれるため JavaScript の MIME type で配信される必要があり、
+ * GitHub Pages が .mjs をどう返すかに依存させたくない。
+ * 読み込み先は InferenceEngine の env.wasm.wasmPaths で明示している。
  */
-const ortRuntimeFiles = [
-  "ort-wasm-simd-threaded.jsep.mjs",
-  "ort-wasm-simd-threaded.jsep.wasm",
-];
+const ortRuntimeFiles: Record<string, string> = {
+  "ort-wasm-simd-threaded.jsep.mjs": "ort-wasm-simd-threaded.jsep.js",
+  "ort-wasm-simd-threaded.jsep.wasm": "ort-wasm-simd-threaded.jsep.wasm",
+};
 
 function copyOnnxRuntimeAssets(): Plugin {
   return {
@@ -31,8 +36,8 @@ function copyOnnxRuntimeAssets(): Plugin {
         this.error("Could not determine output directory for ONNX Runtime assets");
       }
       await Promise.all(
-        ortRuntimeFiles.map((fileName) =>
-          copyFile(join(ortDistDir, fileName), join(outDir, fileName))
+        Object.entries(ortRuntimeFiles).map(([from, to]) =>
+          copyFile(join(ortDistDir, from), join(outDir, to))
         )
       );
     },

@@ -14,6 +14,13 @@ import { env, InferenceSession } from "onnxruntime-web";
 type SpeakerOnnxSessions = Map<string /* ONNX File Name */, InferenceSession>;
 type ModelType = "yukarinS" | "yukarinSa" | "spectrogram" | "vocoder";
 
+/**
+ * 非 bundle 版 onnxruntime-web が実行時に読み込むファイル
+ * public/ への配置は web/vite.config.ts の copyOnnxRuntimeAssets が行う
+ */
+const ortGlueFileName = "ort-wasm-simd-threaded.jsep.js";
+const ortWasmFileName = "ort-wasm-simd-threaded.jsep.wasm";
+
 const modelTypes = [
   "yukarinS",
   "yukarinSa",
@@ -34,8 +41,11 @@ export class InferenceEngine {
     this.assetBaseUrl = assetBaseUrl;
 
     // 非 bundle 版の onnxruntime-web は glue と wasm を実行時に取得する。
-    // GitHub Pages のサブパス配信でも解決できるよう明示的に指定する
-    env.wasm.wasmPaths = assetBaseUrl;
+    // GitHub Pages のサブパス配信でも解決できるよう絶対URLで明示する
+    env.wasm.wasmPaths = {
+      mjs: new URL(ortGlueFileName, assetBaseUrl).href,
+      wasm: new URL(ortWasmFileName, assetBaseUrl).href,
+    };
 
     this.sessions = {
       yukarinS: new Map(),
