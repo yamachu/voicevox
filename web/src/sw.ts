@@ -278,6 +278,20 @@ app.onError((err, c) => {
   );
 });
 
+// 新しい ServiceWorker を待たせずに有効化する
+//
+// 既定では新しい sw.js はインストール後 waiting のまま留まり、
+// そのサイトのタブを全部閉じるまで古い ServiceWorker が制御を続ける。
+// sw-proxy.js は新しいものが読まれるため、
+// 新旧でRPCのプロトコルが食い違って ENGINE が動かなくなる。
+self.addEventListener("install", () => {
+  void self.skipWaiting();
+});
+
+self.addEventListener("activate", (event: ExtendableEvent) => {
+  event.waitUntil(self.clients.claim());
+});
+
 // Window からのレスポンスを処理
 self.addEventListener("message", (event: ExtendableMessageEvent) => {
   handleEngineResponse(event);
