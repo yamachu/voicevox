@@ -146,6 +146,10 @@ public/sw-proxy.js
 public/engine-worker.js
 public/EngineWorkerProtocol.js
 
+# ONNX Runtime Web (非bundle版が実行時に読み込む)
+public/ort-wasm-simd-threaded.jsep.mjs
+public/ort-wasm-simd-threaded.jsep.wasm
+
 # Web + wasm
 public/models
 public/open_jtalk_dic_utf_8-1.11.tgz

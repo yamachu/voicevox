@@ -9,7 +9,7 @@ import {
   yukarinSForward,
   yukarinSaForward,
 } from "@voicevoxenginesharp-wasm-web/inference";
-import { InferenceSession } from "onnxruntime-web";
+import { env, InferenceSession } from "onnxruntime-web";
 
 type SpeakerOnnxSessions = Map<string /* ONNX File Name */, InferenceSession>;
 type ModelType = "yukarinS" | "yukarinSa" | "spectrogram" | "vocoder";
@@ -32,6 +32,11 @@ export class InferenceEngine {
    */
   constructor(assetBaseUrl: string) {
     this.assetBaseUrl = assetBaseUrl;
+
+    // 非 bundle 版の onnxruntime-web は glue と wasm を実行時に取得する。
+    // GitHub Pages のサブパス配信でも解決できるよう明示的に指定する
+    env.wasm.wasmPaths = assetBaseUrl;
+
     this.sessions = {
       yukarinS: new Map(),
       yukarinSa: new Map(),
