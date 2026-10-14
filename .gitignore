@@ -139,3 +139,6 @@ vendored
 .rulesync/rules/*.local.md
 rulesync.local.jsonc
 !.rulesync/.aiignore
+
+# wasm版VOICEVOX COREとその辞書・音声モデル (src/infrastructures/coreWasmEngine/README.md)
+public/voicevox_core

@@ -14,5 +14,8 @@ export function createEngineUrl(params: EngineUrlParams) {
   const { protocol, hostname, port, pathname } = params;
   const url = new URL(`${protocol}//${hostname}`); // NOTE: URLを正規化する
   url.port = port;
-  return `${url.origin}${pathname}`; // NOTE: URLインターフェースは"pathname"が空文字でも"/"を付けるので手動で結合する。
+  // NOTE: `mock:`などの独自スキームはoriginが"null"になるので、スキームとホストから組み立てる。
+  const origin =
+    url.origin === "null" ? `${url.protocol}//${url.host}` : url.origin;
+  return `${origin}${pathname}`; // NOTE: URLインターフェースは"pathname"が空文字でも"/"を付けるので手動で結合する。
 }

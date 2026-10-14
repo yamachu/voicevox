@@ -1,5 +1,6 @@
 import { createEngineUrl, type EngineUrlParams } from "@/domain/url";
 import { createOpenAPIEngineMock } from "@/mock/engineMock";
+import { createOpenAPICoreWasmEngine } from "@/infrastructures/coreWasmEngine";
 import { Configuration, DefaultApi, type DefaultApiInterface } from "@/openapi";
 
 export interface IEngineConnectorFactory {
@@ -42,8 +43,25 @@ const OpenAPIMockEngineConnectorFactoryImpl = (): IEngineConnectorFactory => {
 export const OpenAPIMockEngineConnectorFactory =
   OpenAPIMockEngineConnectorFactoryImpl();
 
-// 通常エンジンとモック用エンジンの両対応
-// モック用エンジンのURLのときはモックを、そうじゃないときは通常エンジンを返す。
+// wasm版のVOICEVOX COREを使うエンジン
+const OpenAPICoreWasmEngineConnectorFactoryImpl =
+  (): IEngineConnectorFactory => {
+    let coreWasmInstance: DefaultApiInterface | undefined;
+    return {
+      instance: () => {
+        if (!coreWasmInstance) {
+          coreWasmInstance = createOpenAPICoreWasmEngine();
+        }
+        return coreWasmInstance;
+      },
+    };
+  };
+export const OpenAPICoreWasmEngineConnectorFactory =
+  OpenAPICoreWasmEngineConnectorFactoryImpl();
+
+// 通常エンジンとモック用エンジンとwasm版COREの対応
+// モック用エンジンのURLのときはモックを、wasm版COREのURLのときはwasm版COREを、
+// そうじゃないときは通常エンジンを返す。
 const OpenAPIEngineAndMockConnectorFactoryImpl =
   (): IEngineConnectorFactory => {
     // モック用エンジンのURLは `mock://mock` とする
@@ -53,11 +71,20 @@ const OpenAPIEngineAndMockConnectorFactoryImpl =
       port: "",
       pathname: "",
     };
+    // wasm版COREのURLは `wasm://core` とする
+    const coreWasmUrlParams: EngineUrlParams = {
+      protocol: "wasm:",
+      hostname: "core",
+      port: "",
+      pathname: "",
+    };
 
     return {
       instance: (host: string) => {
         if (host == createEngineUrl(mockUrlParams)) {
           return OpenAPIMockEngineConnectorFactory.instance(host);
+        } else if (host == createEngineUrl(coreWasmUrlParams)) {
+          return OpenAPICoreWasmEngineConnectorFactory.instance(host);
         } else {
           return OpenAPIEngineConnectorFactory.instance(host);
         }
